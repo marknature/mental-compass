@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import PageSection from "./_components/section";
-import ReflectCard from "./_components/reflect-card";
 import StartDay from "./_components/personal-tasks";
 
 export default function Home() {
@@ -18,19 +17,16 @@ export default function Home() {
     { label: "Angry", color: "bg-orange-300/30" },
   ];
   return (
-    <div className="max-w-md mx-auto bg-background min-h-screen space-y-6">
+    <>
       <h1 className="text-2xl mb-2 text-foreground">
         Good Afternoon,
         <br />
         <span className="font-semibold">Saira!</span>
       </h1>
 
-      <Card className="border-none bg-transparent shadow-none">
+      <Card className="border-none bg-transparent shadow-none mb-0">
         <CardHeader className="p-0 mb-4">
           <CardTitle>How are you feeling today?</CardTitle>
-          <CardDescription>
-            Yesterday you were sad, whats the mood today?{" "}
-          </CardDescription>
         </CardHeader>
         <CardContent className="p-0 grid grid-cols-5 gap-5 items-center place-items-center">
           {moods.map((mood, index) => (
@@ -45,13 +41,11 @@ export default function Home() {
           ))}
         </CardContent>
       </Card>
-
       <StartDay />
-
       <PageSection
         title="Because you are happy"
         description="Articles based on your mood today."
       />
-    </div>
+    </>
   );
 }

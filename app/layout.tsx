@@ -20,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`dark ${epilogue.className} relative antialiased p-5`}>
-        {children}
+        <main className="max-w-md mx-auto bg-background min-h-screen space-y-5">
+          {children}
+        </main>
         <MobileNav />
       </body>
     </html>

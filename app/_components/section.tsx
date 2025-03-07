@@ -118,7 +118,7 @@ export default function PageSection({ title, description }: Props) {
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="w-full overflow-y-scroll">
-          <div className="flex space-x-4 pb-4">
+          <div className="flex space-x-4">
             {cards.map((card, index) => (
               <Card
                 key={index}

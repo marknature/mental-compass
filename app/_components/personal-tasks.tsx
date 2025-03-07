@@ -25,7 +25,7 @@ export default function StartDay() {
         </p>
         <div className="relative">
           {/* Dotted Timeline */}
-          <div className="absolute left-[14px] top-[28px] bottom-2 w-0.5 bg-dotted">
+          <div className="absolute left-[12px] top-[24px] bottom-2 w-0.5 bg-dotted">
             <div className="absolute inset-0 border-l-2 border-dotted border-primary" />
           </div>
 
@@ -35,7 +35,7 @@ export default function StartDay() {
               <div key={index} className="flex items-center justify-center">
                 {/* Timeline dot */}
                 <div className="relative z-10 mt-1.5 mr-4">
-                  <div className="w-7 h-7 rounded-full border-2 border-primary bg-background" />
+                  <div className="w-6 h-6 rounded-full border-2 border-primary bg-background" />
                 </div>
 
                 {/* Task content */}

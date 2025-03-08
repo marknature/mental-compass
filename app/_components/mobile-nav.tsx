@@ -13,8 +13,8 @@ const navItems = [
     color: "text-primary",
   },
   {
-    name: "Challanges",
-    href: "/packs",
+    name: "Events",
+    href: "/events",
     icon: Sparkle,
   },
   {
@@ -29,8 +29,8 @@ const navItems = [
     icon: Users2,
   },
   {
-    name: "Profile",
-    href: "/orders",
+    name: "Resources",
+    href: "/resources",
     icon: User,
   },
 ];

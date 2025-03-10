@@ -8,6 +8,7 @@ import {
   Shield,
   CalendarHeart,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function Counselling() {
   const services = [
@@ -53,7 +54,7 @@ export default function Counselling() {
         <div className="space-y-4">
           {/* Header */}
           <div className="flex gap-8 items-center w-full">
-            <div className="space-y-2 w-2/3">
+            <div className="space-y-2 w-full">
               <h2 className="text-xl font-semibold ">We are here to help</h2>
               <p className="mt-1 text-sm">
                 Join our transformative wellness event and discover powerful
@@ -61,22 +62,17 @@ export default function Counselling() {
                 cultivate lasting inner peace.
               </p>
             </div>
-            <CalendarHeart size={"100"} />
           </div>
           <div className="flex gap-3">
-            <Button className="bg-primary px-6 text-sm">Book a session</Button>
+            <Link href={"/counselling/bookings"}>
+              <Button className="bg-primary px-6 text-sm">
+                Book a session
+              </Button>
+            </Link>
           </div>
         </div>
       </div>{" "}
       <main className="flex-1 pb-24 relative">
-        <div className="grid grid-cols-2 gap-2">
-          <Button size="lg" className="w-full">
-            <Phone className="h-5 w-5 " /> Call
-          </Button>
-          <Button size="lg" className="w-full">
-            <MessageCircle className="h-5 w-5 " /> Email
-          </Button>
-        </div>
         {/* About Section */}
         <div className="py-4">
           <h3 className="text-lg font-semibold mb-2">About</h3>
@@ -94,7 +90,14 @@ export default function Counselling() {
             State 12345
           </p>
         </div>
-
+        <div className="grid grid-cols-2 gap-2">
+          <Button size="lg" className="w-full">
+            <Phone className="h-5 w-5 " /> Call
+          </Button>
+          <Button size="lg" className="w-full">
+            <MessageCircle className="h-5 w-5 " /> Email
+          </Button>
+        </div>
         {/* Hours Section */}
         <div className="py-4">
           <h3 className="text-lg font-semibold mb-4">Office Hours</h3>
@@ -114,39 +117,6 @@ export default function Counselling() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Services Section */}
-        <div className="py-4 w-full">
-          <h3 className="text-lg font-semibold mb-4">Services</h3>
-          <ScrollArea className="w-full whitespace-nowrap">
-            <div className="flex space-x-4">
-              {services.map((service) => (
-                <div
-                  key={service.id}
-                  className="flex-none w-[200px] first:ml-0"
-                >
-                  <div className="rounded-xl bg-border p-4 h-full flex flex-col">
-                    <div
-                      className={`w-12 h-12 rounded-full ${service.color} flex items-center justify-center mb-3`}
-                    >
-                      <service.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <h4 className="text-white font-medium mb-1">
-                      {service.title}
-                    </h4>
-                    <p className="text-zinc-400 text-sm">
-                      {service.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <ScrollBar
-              orientation="horizontal"
-              className="bg-background mt-5"
-            />
-          </ScrollArea>
         </div>
       </main>
     </>

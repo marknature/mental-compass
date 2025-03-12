@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { MapPin, ChevronDown, ChevronUp, Ribbon } from "lucide-react";
+import { MapPin, ChevronDown, ChevronUp, Ribbon, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
@@ -165,8 +165,11 @@ export default function EventDetail({}: EventDetailProps) {
 
         {/* Points Badge */}
         <div className="mt-6 inline-block">
-          <Badge variant="secondary" className="text-sm px-3 py-1">
-            {event.points} points upon completion
+          <Badge
+            variant="secondary"
+            className="flex gap-2 justify-center items-center text-sm px-3 py-1"
+          >
+            <Award /> {event.points} points upon completion
           </Badge>
         </div>
         {/* Fixed Bottom Section */}

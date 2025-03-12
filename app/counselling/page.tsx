@@ -9,6 +9,7 @@ import {
   CalendarHeart,
 } from "lucide-react";
 import Link from "next/link";
+import { CrisisSupport } from "../_components/crisis-support";
 
 export default function Counselling() {
   const services = [
@@ -49,32 +50,10 @@ export default function Counselling() {
           Get professional help from the Africa university counselor
         </p>
       </h1>
-      <div className=" overflow-hidden rounded-xl bg-border p-5">
-        {/* Content Section */}
-        <div className="space-y-4">
-          {/* Header */}
-          <div className="flex gap-8 items-center w-full">
-            <div className="space-y-2 w-full">
-              <h2 className="text-xl font-semibold ">We are here to help</h2>
-              <p className="mt-1 text-sm">
-                Join our transformative wellness event and discover powerful
-                techniques to manage stress, improve mental clarity, and
-                cultivate lasting inner peace.
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Link href={"/counselling/bookings"}>
-              <Button className="bg-primary px-6 text-sm">
-                Book a session
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>{" "}
+      <CrisisSupport />
       <main className="flex-1 pb-24 relative">
         {/* About Section */}
-        <div className="py-4">
+        <div className="pb-4">
           <h3 className="text-lg font-semibold mb-2">About</h3>
           <p className=" text-sm leading-relaxed">
             The University Counseling Center provides confidential mental health
@@ -84,20 +63,14 @@ export default function Counselling() {
             challenges.
             <br />
             <br />
-            Location:
-            <br />
-            Student Services Building, Room 203 123 University Avenue Campus,
-            State 12345
+            Location:{" "}
+            <span className="text-primary">
+              Student Services Building, Room 203 123 University Avenue Campus,
+              State 12345
+            </span>
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Button size="lg" className="w-full">
-            <Phone className="h-5 w-5 " /> Call
-          </Button>
-          <Button size="lg" className="w-full">
-            <MessageCircle className="h-5 w-5 " /> Email
-          </Button>
-        </div>
+
         {/* Hours Section */}
         <div className="py-4">
           <h3 className="text-lg font-semibold mb-4">Office Hours</h3>

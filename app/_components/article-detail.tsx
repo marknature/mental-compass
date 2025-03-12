@@ -73,7 +73,7 @@ export function ArticleDetail({ article }: ArticleDetailProps) {
 
         {/* Article Content */}
         <div className=" py-4">
-          <Badge variant="outline" className="rounded-lg mb-2">
+          <Badge variant="outline" className="rounded-sm mb-2">
             {article.category}
           </Badge>
 

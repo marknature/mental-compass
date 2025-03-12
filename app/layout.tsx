@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Epilogue } from "next/font/google";
 import "./globals.css";
-import MobileNav from "./_components/mobile-nav";
+import { BottomNavigation } from "./_components/mobile-nav";
+import { Toaster } from "@/components/ui/sonner";
 
 const epilogue = Epilogue({
   subsets: ["latin"],
@@ -20,10 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`dark ${epilogue.className} relative antialiased p-5`}>
-        <main className="max-w-md mx-auto bg-background min-h-screen space-y-5">
+        <main className="relative max-w-md mx-auto bg-background min-h-screen space-y-6">
           {children}
         </main>
-        <MobileNav />
+        <Toaster />
+        <BottomNavigation />
       </body>
     </html>
   );

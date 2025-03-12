@@ -6,9 +6,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Link from "next/link";
 import React from "react";
 
-type Props = { title: string; description?: string };
+type Props = { title: string; description?: string; list?: boolean };
 
 const cards = [
   {
@@ -41,6 +42,7 @@ const cards = [
         </div>
       </div>
     ),
+    url: "/events/1",
   },
   {
     title: "Dealing with attacks",
@@ -75,6 +77,7 @@ const cards = [
         </div>
       </div>
     ),
+    url: "/events/2",
   },
   {
     title: "Possible causes",
@@ -106,10 +109,11 @@ const cards = [
         </div>
       </div>
     ),
+    url: "/events/3",
   },
 ];
 
-export default function PageSection({ title, description }: Props) {
+export default function PageSection({ title, description, list }: Props) {
   return (
     <Card className="bg-transparent space-y-4 max-w-4xl mx-auto border-none shadow-none">
       <CardHeader className="p-0">
@@ -118,32 +122,65 @@ export default function PageSection({ title, description }: Props) {
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="w-full overflow-y-scroll">
-          <div className="flex space-x-4">
-            {cards.map((card, index) => (
-              <Card
-                key={index}
-                className="overflow-hidden bg-transparent transition-colors cursor-pointer border-0 w-[150px]  flex-shrink-0 space-y-2"
-              >
-                <div className="group-hover:scale-105 transition-transform duration-300">
-                  {card.image}
-                </div>
-                {/* Content */}
-                <CardHeader className="p-0">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <span>{card.lessons} Lessons</span>
-                    <span>•</span>
-                    <span>{card.duration}</span>
+          {list ? (
+            <div className="space-y-4 w-full">
+              {cards.map((card, index) => (
+                <Link href={card.url}>
+                  <Card
+                    key={index}
+                    className="flex gap-4 overflow-hidden bg-transparent transition-colors cursor-pointer border-0 "
+                  >
+                    <div className="group-hover:scale-105 transition-transform duration-300 w-full">
+                      {card.image}
+                    </div>
+                    <div>
+                      {/* Content */}
+                      <CardHeader className="p-0">
+                        <h3 className="font-semibold text-sm">{card.title}</h3>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                          <span>{card.lessons} Lessons</span>
+                          <span>•</span>
+                          <span>{card.duration}</span>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="px-0">
+                        <p className="text-xs text-muted-foreground line-clamp-3">
+                          {card.description}
+                        </p>
+                      </CardContent>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex space-x-4">
+              {cards.map((card, index) => (
+                <Card
+                  key={index}
+                  className="overflow-hidden bg-transparent transition-colors cursor-pointer border-0 w-[150px]  flex-shrink-0 space-y-2"
+                >
+                  <div className="group-hover:scale-105 transition-transform duration-300">
+                    {card.image}
                   </div>
-                  <h3 className="font-semibold text-sm">{card.title}</h3>
-                </CardHeader>
-                <CardContent className="px-0">
-                  <p className="text-xs text-muted-foreground line-clamp-3">
-                    {card.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  {/* Content */}
+                  <CardHeader className="p-0">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                      <span>{card.lessons} Lessons</span>
+                      <span>•</span>
+                      <span>{card.duration}</span>
+                    </div>
+                    <h3 className="font-semibold text-sm">{card.title}</h3>
+                  </CardHeader>
+                  <CardContent className="px-0">
+                    <p className="text-xs text-muted-foreground line-clamp-3">
+                      {card.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </ScrollArea>
       </CardContent>
     </Card>

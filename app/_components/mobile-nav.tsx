@@ -1,87 +1,77 @@
 "use client";
 
-import { Home, User, Edit, Users2, Sparkle } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Home,
+  Calendar,
+  BookOpen,
+  Award,
+  User,
+  Bookmark,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  {
-    name: "Home",
-    href: "/",
-    icon: Home,
-    color: "text-primary",
-  },
-  {
-    name: "Events",
-    href: "/events",
-    icon: Sparkle,
-  },
-  {
-    name: "Journal",
-    href: "/scan",
-    icon: Edit,
-    isMain: true,
-  },
-  {
-    name: "Counselling",
-    href: "/menu",
-    icon: Users2,
-  },
-  {
-    name: "Resources",
-    href: "/resources",
-    icon: User,
-  },
-];
-
-export default function MobileNav() {
+export function BottomNavigation() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Don't show on detail pages
+  if (pathname.includes("/[") && pathname.split("/").length > 2) {
+    return null;
+  }
+
+  const navItems = [
+    {
+      name: "Home",
+      href: "/",
+      icon: Home,
+      active: pathname === "/",
+    },
+    {
+      name: "Events",
+      href: "/events",
+      icon: Calendar,
+      active: pathname.startsWith("/events"),
+    },
+    {
+      name: "Journal",
+      href: "/journals",
+      icon: BookOpen,
+      active: pathname.startsWith("/journals"),
+    },
+    {
+      name: "Counselling",
+      href: "/counselling",
+      icon: Users,
+      active: pathname.startsWith("/counselling"),
+    },
+    {
+      name: "Resources",
+      href: "/resources",
+      icon: Bookmark,
+      active: pathname.startsWith("/resources"),
+    },
+  ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg ">
-      <div className="flex items-center justify-around h-16 px-4 max-w-md mx-auto relative">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-
-          if (item.isMain) {
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "absolute left-1/2 -translate-x-1/2 -translate-y-1/2",
-                  "bg-primary text-white p-4 rounded-full shadow-lg",
-                  "hover:bg-primary transition-all duration-200",
-                  "active:scale-95",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                )}
-                aria-label={item.name}
-              >
-                <item.icon className="w-6 h-6" />
-              </Link>
-            );
-          }
-
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 p-2",
-                "transition-colors duration-200",
-                "active:scale-95",
-                isActive
-                  ? item.color || "text-primary"
-                  : "text-muted-foreground hover:text-primary",
-              )}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{item.name}</span>
-            </Link>
-          );
-        })}
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 bg-background">
+      <div className="flex items-center justify-around h-16">
+        {navItems.map((item) => (
+          <button
+            key={item.name}
+            onClick={() => router.push(item.href)}
+            className={cn(
+              "flex flex-col items-center justify-center w-full h-full",
+              item.active ? "text-primary" : "text-muted-foreground",
+            )}
+            aria-label={item.name}
+          >
+            <item.icon className="h-5 w-5" />
+            <span className="text-xs mt-1">{item.name}</span>
+          </button>
+        ))}
       </div>
-    </nav>
+    </div>
   );
 }

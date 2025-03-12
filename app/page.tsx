@@ -1,12 +1,7 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageSection from "./_components/section";
 import StartDay from "./_components/personal-tasks";
+import TestimonialCard from "./_components/qoute";
 
 export default function Home() {
   const moods = [
@@ -33,7 +28,7 @@ export default function Home() {
             <span className="text-center" key={`${mood}${index}`}>
               <button
                 key={index}
-                className={`bg-border w-16 h-16 rounded-2xl flex mb-1 items-center justify-center `}
+                className={`bg-primary w-16 h-16 rounded-2xl flex mb-1 items-center justify-center `}
                 aria-label={`Select mood: ${mood.label}`}
               />
               <span className="text-sm">{mood.label}</span>
@@ -41,11 +36,13 @@ export default function Home() {
           ))}
         </CardContent>
       </Card>
-      <StartDay />
+
+      <TestimonialCard />
       <PageSection
         title="Because you are happy"
         description="Articles based on your mood today."
       />
+      <StartDay />
     </>
   );
 }

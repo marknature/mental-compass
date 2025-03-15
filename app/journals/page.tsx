@@ -100,7 +100,7 @@ export default function Journal() {
         })}
       </div>
 
-      <Button size={"icon"} className="z-40 bottom-40 absolute right-5">
+      <Button size={"icon"} className="z-40 bottom-20 absolute right-5">
         <Plus size={"50"} />
       </Button>
     </>

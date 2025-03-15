@@ -63,11 +63,10 @@ export default function Counselling() {
             challenges.
             <br />
             <br />
-            Location:{" "}
-            <span className="text-primary">
-              Student Services Building, Room 203 123 University Avenue Campus,
-              State 12345
-            </span>
+            Location
+            <br />
+            Student Services Building, Room 203 123 University Avenue Campus,
+            State 12345
           </p>
         </div>
 

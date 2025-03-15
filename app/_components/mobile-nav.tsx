@@ -55,7 +55,7 @@ export function BottomNavigation() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 bg-background">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 bg-background">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => (
           <button

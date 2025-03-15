@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PageSection from "../_components/section";
-import { Calendar, Clock, MoreHorizontal, Sliders, Users } from "lucide-react";
+import { Sliders } from "lucide-react";
 import { FeaturedArticle } from "../_components/featured-article";
 
 export default function Resources() {

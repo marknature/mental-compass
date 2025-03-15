@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import PageSection from "./_components/section";
 import StartDay from "./_components/personal-tasks";
 import TestimonialCard from "./_components/qoute";
+import PageSection from "./_components/articles-grid";
 
 export default function Home() {
   const moods = [
@@ -18,17 +18,16 @@ export default function Home() {
         <br />
         <span className="font-semibold">Saira!</span>
       </h1>
-
       <Card className="border-none bg-transparent shadow-none mb-0">
         <CardHeader className="p-0 mb-4">
           <CardTitle>How are you feeling today?</CardTitle>
         </CardHeader>
-        <CardContent className="p-0 grid grid-cols-5 gap-5 items-center place-items-center">
+        <CardContent className="p-0 grid grid-cols-5 gap-2 items-center place-items-center">
           {moods.map((mood, index) => (
             <span className="text-center" key={`${mood}${index}`}>
               <button
                 key={index}
-                className={`bg-primary w-16 h-16 rounded-2xl flex mb-1 items-center justify-center `}
+                className={`bg-primary w-14 h-14 rounded-2xl flex mb-1 items-center justify-center `}
                 aria-label={`Select mood: ${mood.label}`}
               />
               <span className="text-sm">{mood.label}</span>

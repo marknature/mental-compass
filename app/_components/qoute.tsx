@@ -4,15 +4,11 @@ import { Quote } from "lucide-react";
 const TestimonialCard = () => {
   return (
     <Card className="relative w-full  bg-border shadow-none border-none">
-      <Quote className="absolute top-3 right-2 h-16 w-16 text-foreground/10 stroke-[1.5px]" />
-      <CardHeader className="py-5">
+      <CardHeader className="pt-5 pb-2">
         <div className="flex items-center gap-3">
           <div className="flex flex-col gap-1">
             <span className="capitalize text-[15px] leading-none font-semibold">
               Daily motivation
-            </span>
-            <span className="text-xs leading-none text-muted-foreground">
-              Based of your recorded mood
             </span>
           </div>
         </div>

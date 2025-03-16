@@ -33,10 +33,10 @@ export default function CarouselWithFooter() {
   }, [api]);
 
   return (
-    <div className=" w-full py-4">
+    <div className="w-full py-4 pb-0">
       <Carousel
         setApi={setApi}
-        className="w-full"
+        className="space-y-2 w-full"
         plugins={[
           Autoplay({
             delay: 2000,
@@ -91,8 +91,6 @@ export default function CarouselWithFooter() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="top-[calc(100%+0.5rem)] translate-y-0 left-0" />
-        <CarouselNext className="top-[calc(100%+0.5rem)] translate-y-0 left-2 translate-x-full" />
       </Carousel>
       <div className="mt-4 flex items-center justify-end gap-2">
         {Array.from({ length: count }).map((_, index) => (

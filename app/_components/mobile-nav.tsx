@@ -1,15 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Home,
-  Calendar,
-  BookOpen,
-  Award,
-  User,
-  Bookmark,
-  Users,
-} from "lucide-react";
+import { Home, Calendar, BookOpen, User, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function BottomNavigation() {
@@ -41,21 +33,21 @@ export function BottomNavigation() {
       active: pathname.startsWith("/journals"),
     },
     {
-      name: "Counselling",
-      href: "/counselling",
-      icon: Users,
-      active: pathname.startsWith("/counselling"),
-    },
-    {
-      name: "Resources",
+      name: "Resouces",
       href: "/resources",
       icon: Bookmark,
       active: pathname.startsWith("/resources"),
     },
+    {
+      name: "Profile",
+      href: "/profile",
+      icon: User,
+      active: pathname.startsWith("/profile"),
+    },
   ];
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 bg-background">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full  max-w-md z-40 bg-background rounded-t-2xl">
       <div className="flex items-center justify-around h-16">
         {navItems.map((item) => (
           <button

@@ -39,7 +39,7 @@ export default function RootLayout({
       <body className={`dark ${epilogue.className} relative antialiased`}>
         {!isMobileDevice() ? (
           <>
-            <main className="container mx-auto px-4 py-6 space-y-6 min-h-screen">
+            <main className="relative container mx-auto px-4 py-6 space-y-5 min-h-screen">
               {children}
             </main>
             <Toaster />

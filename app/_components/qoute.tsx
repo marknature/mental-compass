@@ -1,27 +1,22 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Quote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, Heart, Save, Users } from "lucide-react";
 
 const TestimonialCard = () => {
   return (
-    <Card className="relative w-full  bg-border shadow-none border-none">
-      <CardHeader className="pt-5 pb-2">
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col gap-1">
-            <span className="capitalize text-[15px] leading-none font-semibold">
-              Daily motivation
-            </span>
-          </div>
+    <div className=" overflow-hidden rounded-xl bg-border p-5">
+      {/* Content Section */}
+      <div className="space-y-4">
+        {/* Header */}
+        <div>
+          <h2 className=" font-semibold ">Daily Motivation</h2>
+          <p className="mt-1 text-sm ">
+            Join our transformative wellness event and discover powerful
+            techniques to manage stress, improve mental clarity, and cultivate
+            lasting inner peace.
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm line-clamp-4 text-[15px] text-muted-foreground">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis
-          ullamcorper, augue at commodo interdum, erat dolor egestas eros, eu
-          finibus turpis nunc at purus. Sed elementum rutrum nibh, a egestas
-          turpis porttitor eu.
-        </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

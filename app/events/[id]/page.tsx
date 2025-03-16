@@ -65,21 +65,13 @@ export default function EventDetail({}: EventDetailProps) {
   return (
     <div className="flex flex-col min-h-screen bg-background ">
       {/* Hero Image Section */}
-      <div className="relative w-full h-72 rounded-lg border-none outline-none">
+      <div className="relative w-full h-52 rounded-lg border-none outline-none">
         <div className="bg-border border-none outline-none h-full w-full object-cover rounded-lg " />
-        <div className="absolute top-4 right-4 bg-primary text-center rounded-xl px-3 py-2 ">
-          <div className="text-xs text-muted-foreground">
-            {event.date.split(",")[0].split(" ")[0]}
-          </div>
-          <div className="text-xl font-bold">
-            {event.date.split(",")[0].split(" ")[1]}
-          </div>
-        </div>
       </div>
 
       {/* Content Section */}
       <div className="flex-1  pt-6 ">
-        <h1 className="text-2xl font-bold">{event.title}</h1>
+        <h1 className="text-xl font-bold">{event.title}</h1>
 
         {/* Location */}
         <div className="flex items-center gap-2 mt-2 text-muted-foreground">
@@ -91,10 +83,7 @@ export default function EventDetail({}: EventDetailProps) {
         <div className="flex items-center gap-2 mt-4">
           <div className="flex -space-x-2">
             {participants.map((participant, i) => (
-              <Avatar
-                key={i}
-                className="border-2 bg-border border-white/20 w-6 h-6"
-              >
+              <Avatar key={i} className=" bg-border  w-6 h-6">
                 <AvatarImage src={participant.image} alt={participant.name} />
               </Avatar>
             ))}
@@ -104,6 +93,16 @@ export default function EventDetail({}: EventDetailProps) {
             joined
           </span>
         </div>
+        {/* Points Badge */}
+        <div className="mt-6 inline-block">
+          <Badge
+            variant="secondary"
+            className="flex gap-2 justify-center items-center text-sm px-3 py-1"
+          >
+            <Award /> {event.points} points upon completion
+          </Badge>
+        </div>
+
         <div className="grid grid-cols-4 gap-2 my-6">
           <Button
             variant="secondary"
@@ -163,26 +162,17 @@ export default function EventDetail({}: EventDetailProps) {
           </div>
         </div>
 
-        {/* Points Badge */}
-        <div className="mt-6 inline-block">
-          <Badge
-            variant="secondary"
-            className="flex gap-2 justify-center items-center text-sm px-3 py-1"
-          >
-            <Award /> {event.points} points upon completion
-          </Badge>
-        </div>
         {/* Fixed Bottom Section */}
         <div className="flex space-x-3">
           <Button
-            className="w-full h-12 text-base mt-6"
+            className="w-full h-12 text-sm mt-6"
             variant={isRegistered ? "outline" : "default"}
             onClick={handleRegister}
             disabled={isRegistered}
           >
             {isRegistered ? "Registered" : "Register"}
           </Button>
-          <Button className="w-full h-12 text-base mt-6" variant={"secondary"}>
+          <Button className="w-full h-12 text-sm mt-6" variant={"secondary"}>
             Contact organizer
           </Button>
         </div>

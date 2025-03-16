@@ -43,7 +43,7 @@ export default function Events() {
 
       <Tabs
         defaultValue="account"
-        className="relative mr-auto w-full space-y-5 mt-0"
+        className="relative mr-auto w-full space-y-5 !mt-2"
       >
         <TabsList className="p-0 h-auto bg-background gap-1 mt-0">
           <TabsTrigger

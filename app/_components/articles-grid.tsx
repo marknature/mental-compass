@@ -153,7 +153,7 @@ export default function PageSection({ title, description, list }: Props) {
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="w-full overflow-y-scroll">
-            <div className="flex space-x-4">
+            <div className="flex w-max space-x-4 py-2">
               {stories.map((card, index) => (
                 <Card
                   key={index}
@@ -221,7 +221,7 @@ export default function PageSection({ title, description, list }: Props) {
           {/* Header */}
           <div className="flex items-center justify-between p-4 z-10">
             <div className="flex items-center space-x-2">
-              <Avatar className="w-8 h-8 ">
+              <Avatar className="w-8 h-8 border">
                 <AvatarImage
                   src={activeStory.author.avatar}
                   alt={activeStory.author.name}

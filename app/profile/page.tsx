@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export default function ProfilePage() {
   const [activeSection, setActiveSection] = useState<string>("dashboard");
@@ -73,7 +73,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Navigation Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-2 gap-2 mb-8">
         <NavItem
           icon={<Smile />}
           label="Mood"
@@ -144,7 +144,7 @@ function NavItem({
   return (
     <button
       className={`flex gap-3 items-center justify-start p-1 rounded-lg transition-colors ${
-        isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
+        isActive ? "bg-primary/10 text-primary" : "hover:bg-muted bg-muted/30"
       }`}
       onClick={onClick}
     >

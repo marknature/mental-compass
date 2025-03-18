@@ -143,7 +143,7 @@ function NavItem({
 }) {
   return (
     <button
-      className={`flex gap-3 items-center justify-start p-1 rounded-lg transition-colors ${
+      className={`flex gap-3 items-center justify-start p-2 px-4 rounded-lg transition-colors ${
         isActive ? "bg-primary/10 text-primary" : "hover:bg-muted bg-muted/30"
       }`}
       onClick={onClick}

@@ -261,7 +261,7 @@ export default function PageSection({ title, description, list }: Props) {
                   "h-8 w-8",
                   activeIndex === 0
                     ? "opacity-0"
-                    : "opacity-70 hover:opacity-100",
+                    : "opacity-0 hover:opacity-100",
                 )}
               />
             </button>

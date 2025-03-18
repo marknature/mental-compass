@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TestimonialCard from "./_components/qoute";
 import PageSection from "./_components/articles-grid";
-import { Bell } from "lucide-react";
+import { Bell, Bolt, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Mood = "good" | "happy" | "jolly" | "sad" | "angry";
@@ -63,7 +63,7 @@ export default function Home() {
                 className={`bg-primary w-14 h-14 rounded-lg flex mb-1 items-center justify-center `}
                 aria-label={`Select mood: ${mood.label}`}
               >
-                <FaceSvg mood={mood.type} />
+                {/* <FaceSvg mood={mood.type} /> */}
               </button>
               <span className="text-sm">{mood.label}</span>
             </span>
@@ -72,9 +72,9 @@ export default function Home() {
       </Card>
       <TestimonialCard />
       <section className="space-y-4">
-        <div className="space-y-2">
+        <div className="space-y-1">
           <h1 className="text-sm font-medium">Crisis Support Available</h1>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             If you're experiencing a mental health emergency, immediate support
             is available.
           </p>

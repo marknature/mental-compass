@@ -1,60 +1,34 @@
 {
   "name": "campus-compass",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "A reward-based mental health support platform for university students.",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev:compass": "cd apps/campus-compass && npm run dev",
+    "dev:manager": "cd apps/campus-manager && npm run dev",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint"
   },
+  "workspaces": [
+    "campus-compass",
+    "campus-manager"
+  ],
   "dependencies": {
-    "@hookform/resolvers": "^4.1.3",
-    "@radix-ui/react-avatar": "^1.1.3",
-    "@radix-ui/react-dialog": "^1.1.6",
-    "@radix-ui/react-label": "^2.1.2",
-    "@radix-ui/react-popover": "^1.1.6",
-    "@radix-ui/react-progress": "^1.1.2",
-    "@radix-ui/react-scroll-area": "^1.2.3",
-    "@radix-ui/react-select": "^2.1.6",
-    "@radix-ui/react-slot": "^1.1.2",
-    "@radix-ui/react-tabs": "^1.1.3",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "date-fns": "^3.6.0",
-    "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.40.1",
-    "embla-carousel-autoplay": "^8.5.2",
-    "embla-carousel-react": "^8.5.2",
-    "lucide-react": "^0.477.0",
-    "next": "15.1.6",
-    "next-themes": "^0.4.6",
-    "pg": "^8.14.0",
-    "react": "^18.3.0",
-    "react-day-picker": "^8.10.1",
-    "react-dom": "^18.3.0",
-    "react-hook-form": "^7.54.2",
-    "sonner": "^2.0.1",
-    "tailwind-merge": "^3.0.2",
-    "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.2"
+    "pg": "^8.11.3",
+    "drizzle-orm": "^0.20.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
-    "@types/pg": "^8.11.11",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "drizzle-kit": "^0.30.5",
-    "eslint": "^9",
-    "eslint-config-next": "15.1.6",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "tsx": "^4.19.3",
-    "typescript": "^5"
+    "prettier": "^3.0.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }

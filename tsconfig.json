@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // Modern JavaScript features
+    "module": "commonjs", // Use CommonJS modules (Node.js compatible)
+    "moduleResolution": "node", // Resolve modules like Node.js
+    "baseUrl": ".", // Base directory for resolving paths
+    "outDir": "./dist", // Output directory for compiled files
+    "rootDir": ".", // Root directory for TypeScript files
+    "strict": true, // Enable all strict type-checking options
+    "esModuleInterop": true, // Enable ES module interop
+    "skipLibCheck": true, // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true, // Ensure consistent file naming
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "checkJs": true, // Type-check JavaScript files
+    "jsx": "preserve", // Preserve JSX syntax (for Next.js)
+    "resolveJsonModule": true, // Allow importing JSON files
+    "isolatedModules": true, // Ensure each file can be transpiled independently
+    "paths": {
+      "@models/*": ["services/api/database/schema/*"], // Alias for database models
+      "@utils/*": ["services/api/utils/*"], // Alias for utility functions
+      "@middleware/*": ["services/api/middleware/*"], // Alias for middleware
+      "@controllers/*": ["services/api/controllers/*"], // Alias for controllers
+      "@routes/*": ["services/api/routes/*"], // Alias for routes
+      "@db/*": ["services/database/*"] // Alias for routes
+    }
+  },
+  "include": [
+    "apps/**/*", // Include all files in apps folder
+    "services/**/*", // Include all files in services folder
+    "shared/**/*" // Include all files in shared folder
+  ],
+  "exclude": [
+    "node_modules", // Exclude node_modules
+    "dist", // Exclude compiled output
+    "**/*.test.ts", // Exclude test files
+    "**/*.spec.ts" // Exclude spec files
+  ]
+}

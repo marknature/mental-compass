@@ -21,13 +21,14 @@
       "@middleware/*": ["services/api/middleware/*"], // Alias for middleware
       "@controllers/*": ["services/api/controllers/*"], // Alias for controllers
       "@routes/*": ["services/api/routes/*"], // Alias for routes
-      "@db/*": ["services/database/*"] // Alias for routes
+      "@db/*": ["services/api/database/*"] // Alias for routes
     }
   },
   "include": [
     "apps/**/*", // Include all files in apps folder
     "services/**/*", // Include all files in services folder
-    "shared/**/*" // Include all files in shared folder
+    "shared/**/*", // Include all files in shared folder
+    "drizzle.config.ts"
   ],
   "exclude": [
     "node_modules", // Exclude node_modules

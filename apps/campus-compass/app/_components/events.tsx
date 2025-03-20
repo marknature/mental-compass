@@ -6,15 +6,19 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { cn } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, Clock } from "lucide-react";
+import { Users, Calendar, Clock, Award, MapPin } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 
-export default function CarouselWithFooter() {
+type Props = {
+  events: Event[];
+};
+
+export default function CarouselWithFooter({ events }: Props) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -44,50 +48,9 @@ export default function CarouselWithFooter() {
         ]}
       >
         <CarouselContent>
-          {Array.from({ length: 5 }).map((_, index) => (
+          {events.map((event, index) => (
             <CarouselItem key={index}>
-              <div className=" overflow-hidden rounded-xl bg-border p-5">
-                {/* Content Section */}
-                <div className="space-y-4">
-                  {/* Header */}
-                  <div>
-                    <h2 className="text-xl font-semibold ">
-                      Reflect on your inner self
-                    </h2>
-                    <p className="mt-1 text-sm ">
-                      Join our transformative wellness event and discover
-                      powerful techniques to manage stress, improve mental
-                      clarity, and cultivate lasting inner peace.
-                    </p>
-                  </div>
-
-                  {/* Metrics */}
-                  <div className="flex gap-4 text-xs">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      <span>Beginner</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>March 15</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>4 Hours</span>
-                    </div>
-                  </div>
-
-                  {/* CTA Button */}
-                  <div className="flex gap-3">
-                    <Button className="bg-primary px-6 text-sm">
-                      Learn More
-                    </Button>
-                    <Button className="px-6 text-sm" variant={"secondary"}>
-                      View Detials
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <EventCard key={index} event={event} />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -104,5 +67,78 @@ export default function CarouselWithFooter() {
         ))}
       </div>
     </div>
+  );
+}
+
+interface Event {
+  title: string;
+  description: string;
+  type: "workshop" | "challenge" | "activity";
+  date: string;
+  time: string;
+  location: string;
+  points: number;
+  participants: number;
+  image: string;
+  status: "upcoming" | "ongoing" | "completed";
+}
+
+function EventCard({ event }: { event: Event }) {
+  const { date, time } = formatDateTime(event.date);
+  return (
+    <Card className="overflow-hidden border-none">
+      <CardContent className="p-0">
+        <div className="relative h-28 bg-primary/50">
+          <Image
+            src={event.image || "/placeholder.svg?height=128&width=400"}
+            alt={event.title}
+            fill
+            className="object-cover text-[0px]"
+          />
+          <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center">
+            <Award className="h-3 w-3 mr-1" />
+            {event.points} points
+          </div>
+        </div>
+        <div className="p-3 bg-border">
+          <h3 className="font-semibold mb-1">{event.title}</h3>
+          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+            {event.description}
+          </p>
+
+          <div className="grid grid-cols-2 gap-1 mb-3">
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3 mr-1" />
+              <span>{date}</span>
+            </div>
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Clock className="h-3 w-3 mr-1" />
+              <span>{time}</span>
+            </div>
+            <div className="flex items-center text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3 mr-1" />
+              <span>{event.location}</span>
+            </div>
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Users className="h-3 w-3 mr-1" />
+              <span>{event.participants ?? "0"} joined</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              className="w-full rounded-sm"
+              size="sm"
+              variant={event.status === "completed" ? "outline" : "default"}
+            >
+              {event.status === "upcoming"
+                ? "Register"
+                : event.status === "ongoing"
+                  ? "Join Now"
+                  : "View Details"}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

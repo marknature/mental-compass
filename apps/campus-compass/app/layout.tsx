@@ -36,10 +36,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`dark ${epilogue.className} relative antialiased`}>
+      <body className={`dark ${epilogue.className} relative antialiased `}>
         {!isMobileDevice() ? (
           <>
-            <main className="relative container mx-auto px-4 py-6 space-y-5 min-h-screen">
+            <main className="relative container mx-auto px-4 py-6 space-y-5 min-h-screen pb-20">
               {children}
             </main>
             <Toaster />
@@ -48,7 +48,7 @@ export default function RootLayout({
         ) : (
           <div className="min-h-screen flex items-center justify-center">
             <p className="text-center">
-              This site is only availble to mobile devices
+              This site is only available on mobile devices
             </p>
           </div>
         )}

@@ -1,46 +1,46 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import TestimonialCard from "./_components/qoute";
-import PageSection from "./_components/articles-grid";
-import { Bell, Bolt, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Award, Bell } from "lucide-react";
+import PageSection from "./_components/articles-grid";
+import TestimonialCard from "./_components/qoute";
+import Link from "next/link";
 
-type Mood = "good" | "happy" | "jolly" | "sad" | "angry";
-export default function Home() {
-  const moods: { type: Mood; label: string; color: string }[] = [
+const queryUserData = async () => {
+  const response = await fetch("http://localhost:5000/api/users/1");
+  if (!response.ok) {
+    throw new Error("Failed to fetch user data");
+  }
+  return response.json();
+};
+
+export default async function Home() {
+  const data = await queryUserData();
+  const upcomingEvents = [
     {
-      type: "good",
-      label: "Good",
-      color: "bg-yellow-200 hover:bg-yellow-300",
+      title: "Mindfulness Meditation",
+      month: "Jun",
+      day: "15",
+      time: "2:00 PM",
+      location: "Student Center",
+      points: 50,
     },
     {
-      type: "happy",
-      label: "Happy",
-      color: "bg-pink-200 hover:bg-pink-300",
-    },
-    {
-      type: "jolly",
-      label: "Jolly",
-      color: "bg-blue-300 hover:bg-blue-400",
-    },
-    {
-      type: "sad",
-      label: "Sad",
-      color: "bg-blue-200 hover:bg-blue-300",
-    },
-    {
-      type: "angry",
-      label: "Angry",
-      color: "bg-red-300 hover:bg-red-400",
+      title: "Stress Management Workshop",
+      month: "Jun",
+      day: "20",
+      time: "3:30 PM",
+      location: "Health Center",
+      points: 75,
     },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <header className="flex items-start justify-between">
         <div>
           <h1 className=" text-foreground">Good Afternoon</h1>
           <h3 className="font-semibold text-sm text-muted-foreground">
-            Saira Brown
+            {data.firstName} {data.lastName}
           </h3>
         </div>
         <div className="flex gap-2 items-center">
@@ -49,28 +49,39 @@ export default function Home() {
           </Button>
         </div>
       </header>
-      <Card className="border-none bg-transparent shadow-none mb-0">
-        <CardHeader className="p-0 mb-2">
-          <CardTitle className="font-normal text-sm">
-            How are you feeling today?
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0 grid grid-cols-5 gap-2 items-center place-items-center">
-          {moods.map((mood, index) => (
-            <span className="text-center" key={`${mood}${index}`}>
-              <button
-                key={index}
-                className={`bg-primary w-14 h-14 rounded-lg flex mb-1 items-center justify-center `}
-                aria-label={`Select mood: ${mood.label}`}
-              >
-                {/* <FaceSvg mood={mood.type} /> */}
-              </button>
-              <span className="text-sm">{mood.label}</span>
-            </span>
-          ))}
-        </CardContent>
-      </Card>
+      <section className="py-2">
+        <div className="mb-4">
+          <h2 className="text-base mb-1 font-semibold">Quick Actions</h2>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="bg-primary/80 border-none">
+            <CardContent className="p-4 flex flex-col items-center text-center">
+              <Link href={"/journals/"}>
+                <h3 className="font-medium">Journal Entry</h3>
+                <p className="text-xs text-foreground/80 mb-2">
+                  Track your mood
+                </p>
+              </Link>
+            </CardContent>
+          </Card>
+          <Card className="border-none bg-border">
+            <CardContent className="p-4 flex flex-col items-center text-center">
+              <Link href={"/events/"}>
+                <h3 className="font-medium">Events</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Join activities
+                </p>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       <TestimonialCard />
+      <PageSection
+        title="Because you are happy"
+        description="Articles based on your mood today."
+      />
       <section className="space-y-4">
         <div className="space-y-1">
           <h1 className="text-sm font-medium">Crisis Support Available</h1>
@@ -80,144 +91,48 @@ export default function Home() {
           </p>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Button size={"lg"}>Call</Button>
-          <Button size={"lg"}>Email</Button>
-        </div>{" "}
+          <Button size={"lg"} asChild>
+            <a href="tel:+1234567890">Call</a>
+          </Button>
+
+          <Button size={"lg"} asChild>
+            <a href="mailto:support@example.com">Email</a>
+          </Button>
+        </div>
       </section>
-      <PageSection
-        title="Because you are happy"
-        description="Articles based on your mood today."
-      />
+
+      {/* Upcoming Events */}
+      <section className="py-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">Upcoming Events</h2>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/events">View all</Link>
+          </Button>
+        </div>
+        <div className="space-y-3">
+          {upcomingEvents.map((event, index) => (
+            <Card key={index} className="bg-border">
+              <CardContent className="p-4">
+                <div className="flex flex-col items-start">
+                  <div className="flex-1">
+                    <h1 className="text-muted-foreground text-sm mb-2">
+                      Thursday 22 April
+                    </h1>
+                    <h3 className="font-medium">{event.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      {event.time} • {event.location}
+                    </p>
+                    <div className="flex items-center text-xs">
+                      <Award className="h-3 w-3 mr-1 text-primary" />
+                      <span>{event.points} points</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
-}
-
-function FaceSvg({ mood }: { mood: Mood }) {
-  switch (mood) {
-    case "good":
-      return (
-        <svg
-          viewBox="0 0 100 100"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-14 h-14"
-        >
-          <circle cx="30" cy="40" r="5" fill="black" />
-          <circle cx="70" cy="40" r="5" fill="black" />
-          <path
-            d="M 30 65 Q 50 80 70 65"
-            fill="none"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
-    case "happy":
-      return (
-        <svg
-          viewBox="0 0 100 100"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-14 h-14"
-        >
-          <line
-            x1="30"
-            y1="40"
-            x2="40"
-            y2="40"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-          <line
-            x1="60"
-            y1="40"
-            x2="70"
-            y2="40"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 30 65 Q 50 75 70 65"
-            fill="none"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
-    case "jolly":
-      return (
-        <svg
-          viewBox="0 0 100 100"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-14 h-14"
-        >
-          <circle cx="30" cy="40" r="5" fill="black" />
-          <circle cx="70" cy="40" r="5" fill="black" />
-          <path
-            d="M 30 65 C 30 80 70 80 70 65"
-            fill="none"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
-    case "sad":
-      return (
-        <svg
-          viewBox="0 0 100 100"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-14 h-14"
-        >
-          <circle cx="30" cy="40" r="5" fill="black" />
-          <circle cx="70" cy="40" r="5" fill="black" />
-          <path
-            d="M 30 75 Q 50 60 70 75"
-            fill="none"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
-    case "angry":
-      return (
-        <svg
-          viewBox="0 0 100 100"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-14 h-14"
-        >
-          <line
-            x1="25"
-            y1="35"
-            x2="40"
-            y2="45"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-          <line
-            x1="60"
-            y1="45"
-            x2="75"
-            y2="35"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 30 70 L 40 75 L 50 70 L 60 75 L 70 70"
-            fill="none"
-            stroke="black"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-    default:
-      return null;
-  }
 }

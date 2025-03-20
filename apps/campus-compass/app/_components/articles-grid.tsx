@@ -151,13 +151,13 @@ export default function PageSection({ title, description, list }: Props) {
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="w-full overflow-y-scroll">
-            <div className="flex w-max space-x-4 py-2">
+        <CardContent className="p-0 shadow-none">
+          <div className="w-full overflow-x-auto pb-4 no-scrollbar">
+            <div className="flex space-x-4 py-2 w-max">
               {stories.map((card, index) => (
                 <Card
                   key={index}
-                  className="overflow-hidden bg-transparent transition-colors cursor-pointer border-0 w-[150px]  flex-shrink-0 space-y-2"
+                  className="overflow-hidden bg-transparent transition-colors cursor-pointer border-0 w-[150px] flex-shrink-0 space-y-2"
                   onClick={() => openStory(card, index)}
                 >
                   <div className="relative w-full h-24 bg-blue-900/10 rounded-lg overflow-hidden">
@@ -186,7 +186,7 @@ export default function PageSection({ title, description, list }: Props) {
                   {/* Content */}
                   <CardHeader className="p-0">
                     <div className="items-center gap-2 text-xs text-muted-foreground mb-1">
-                      <p>{card.date} </p>
+                      <p>{card.date}</p>
                       <p>{card.author.name}</p>
                     </div>
                     <h3 className="font-semibold text-sm">{card.title}</h3>
@@ -194,7 +194,7 @@ export default function PageSection({ title, description, list }: Props) {
                 </Card>
               ))}
             </div>
-          </ScrollArea>
+          </div>
         </CardContent>
       </Card>
 
@@ -222,10 +222,6 @@ export default function PageSection({ title, description, list }: Props) {
           <div className="flex items-center justify-between p-4 z-10">
             <div className="flex items-center space-x-2">
               <Avatar className="w-8 h-8 border">
-                <AvatarImage
-                  src={activeStory.author.avatar}
-                  alt={activeStory.author.name}
-                />
                 <AvatarFallback>{activeStory.author.initials}</AvatarFallback>
               </Avatar>
               <div>
@@ -241,7 +237,7 @@ export default function PageSection({ title, description, list }: Props) {
           </div>
 
           {/* Story content */}
-          <div className="flex flex-col mt-36  h-full">
+          <div className="flex flex-col mt-36 h-full">
             {/* Content overlay */}
             <div className="flex flex-col p-5">
               <h2 className="text-white text-2xl font-bold mb-2">

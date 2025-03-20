@@ -51,14 +51,14 @@ export default function ProfilePage() {
 
       {/* Profile Header */}
       <div className="flex items-center gap-3 !mb-8">
-        <Avatar className="h-16 w-16 bg-primary rounded-xl">
+        <Avatar className="h-20 w-20 bg-primary rounded-xl">
           <AvatarImage
             src="/placeholder.svg?height=64&width=64"
             alt="Sarah Johnson"
           />
         </Avatar>
         <div className="flex-1">
-          <h1 className="text-base font-semibold">Sarah Johnson</h1>
+          <h1 className="text-sm font-semibold">Sarah Johnson</h1>
           <div className="mt-1 space-y-1">
             <div className="text-sm flex gap-1">
               <p>Streak: 24</p> • <p>Badges: 24</p>

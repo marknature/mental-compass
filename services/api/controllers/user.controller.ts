@@ -1,6 +1,5 @@
-import { db } from "@db/index";
-import users from "@db/schema/users.schema";
-
+import { db } from "services/api/database/index";
+import users, { NewUser } from "@models/users.schema";
 import { eq } from "drizzle-orm";
 import { Request, Response } from "express";
 
@@ -18,9 +17,19 @@ export const getAllUsers = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const user = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    if (user.length === 0)
+    const userId = Number(id); // Convert id to a number
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    if (user.length === 0) {
       return res.status(404).json({ message: "User not found" });
+    }
 
     res.json(user[0]);
   } catch (error) {
@@ -29,15 +38,16 @@ export const getUserById = async (req: Request, res: Response) => {
 };
 
 // Create a new user
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: Request<{}, NewUser>, res: Response) => {
   try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password)
+    const { firstName, lastName, email, passwordHash } = req.body;
+    if (!firstName || !lastName || !email || !passwordHash) {
       return res.status(400).json({ message: "All fields are required" });
+    }
 
     const newUser = await db
       .insert(users)
-      .values({ name, email, password })
+      .values({ firstName, lastName, email, passwordHash }) // Match schema fields
       .returning();
     res.status(201).json(newUser[0]);
   } catch (error) {
@@ -49,15 +59,22 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, password } = req.body;
+    const userId = Number(id); // Convert id to a number
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const { firstName, lastName, email, passwordHash } = req.body; // Match schema fields
 
     const updatedUser = await db
       .update(users)
-      .set({ name, email, password })
-      .where(eq(users.id, id))
+      .set({ firstName, lastName, email, passwordHash }) // Match schema fields
+      .where(eq(users.id, userId))
       .returning();
-    if (updatedUser.length === 0)
+
+    if (updatedUser.length === 0) {
       return res.status(404).json({ message: "User not found" });
+    }
 
     res.json(updatedUser[0]);
   } catch (error) {
@@ -69,12 +86,19 @@ export const updateUser = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = Number(id); // Convert id to a number
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
     const deletedUser = await db
       .delete(users)
-      .where(eq(users.id, id))
+      .where(eq(users.id, userId))
       .returning();
-    if (deletedUser.length === 0)
+
+    if (deletedUser.length === 0) {
       return res.status(404).json({ message: "User not found" });
+    }
 
     res.json({ message: "User deleted successfully", user: deletedUser[0] });
   } catch (error) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -23,8 +23,6 @@ import {
   Lightbulb,
   Activity,
   BookIcon,
-  Calendar,
-  CloudRain,
   Coffee,
   Dumbbell,
   Music,
@@ -36,10 +34,11 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import { Calendar } from "@/components/ui/calendar";
 
 type Mood = "good" | "happy" | "calm" | "sad" | "angry";
 export default function JournalPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setDate] = useState<Date | undefined>(new Date());
   const [moodScore, setMoodScore] = useState<number>(5);
   const [sleep, setSleep] = useState<string | undefined>();
   const [sleepHours, setSleepHours] = useState<number>(7);
@@ -172,15 +171,11 @@ export default function JournalPage() {
   };
 
   const getMoodColor = (score: number) => {
-    if (score >= 8)
-      return "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300";
-    if (score >= 6)
-      return "bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300";
-    if (score >= 4)
-      return "bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300";
-    if (score >= 2)
-      return "bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300";
-    return "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300";
+    if (score >= 8) return " text-green-600 dark:text-green-300";
+    if (score >= 6) return " text-emerald-600  dark:text-emerald-300";
+    if (score >= 4) return " text-yellow-600 dark:text-yellow-300";
+    if (score >= 2) return " text-orange-600  dark:text-orange-300";
+    return " text-red-600 dark:text-red-300";
   };
 
   const getMoodIcon = (score: number) => {
@@ -250,8 +245,10 @@ export default function JournalPage() {
     setPromptIndex((promptIndex + 1) % journalPrompts.length);
   };
 
-  const todaysMood = date
-    ? moodHistory.find((day) => day.date && date && isSameDay(day.date, date))
+  const todaysMood = selectedDate
+    ? moodHistory.find(
+        (day) => day.date && selectedDate && isSameDay(day.date, selectedDate),
+      )
     : null;
 
   return (
@@ -522,18 +519,15 @@ export default function JournalPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="insights" className="p-4 space-y-3">
+        <TabsContent value="insights" className="p-4 space-y-6 px-0">
           {/* Correlation Insights */}
-          <Card className="border-none">
-            <CardHeader className="pb-2 px-0 mb-3">
+          <Card className="border-none bg-border">
+            <CardHeader className="pb-2  mb-6">
               <CardTitle className="text-base">
                 Your Wellness Patterns
               </CardTitle>
-              <CardDescription>
-                See the patterns between your activities and overall wellness.
-              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-0 px-0">
+            <CardContent className="pt-0 mb-6 ">
               <div className="space-y-4">
                 {insights.map((insight, index) => (
                   <div key={index} className="flex items-start gap-3">
@@ -554,13 +548,13 @@ export default function JournalPage() {
 
           {/* Mood Factors */}
           <Card className="border-none">
-            <CardHeader className="pb-2 px-0">
+            <CardHeader className="pb-2 px-0 pt-0">
               <CardTitle className="text-base">
                 What Affects Your Mood
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 px-0">
-              <div className="space-y-3">
+              <div className="space-y-5">
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm">Exercise</span>
@@ -635,55 +629,18 @@ export default function JournalPage() {
             </CardContent>
           </Card>
 
-          {/* Weekly Mood Chart */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Your Mood Trends</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="h-[160px] flex items-end justify-between gap-1 mt-4 mb-2">
-                {moodHistory.map((day, i) => (
-                  <div key={i} className="flex flex-col items-center flex-1">
-                    <div
-                      className={cn(
-                        "w-full rounded-t-sm",
-                        getMoodColor(day.mood),
-                      )}
-                      style={{ height: `${(day.mood / 10) * 100}%` }}
-                    ></div>
-                    <span className="text-xs mt-1">
-                      {format(day.date, "EEE")}
-                    </span>
-                  </div>
-                ))}
-                <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={cn(
-                      "w-full rounded-t-sm",
-                      getMoodColor(moodScore),
-                    )}
-                    style={{ height: `${(moodScore / 10) * 100}%` }}
-                  ></div>
-                  <span className="text-xs mt-1">Today</span>
-                </div>
-              </div>
-
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                <span>Last 7 Days</span>
-                <span>Average Mood: 6.2/10</span>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Recommendations */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="border-none">
+            <CardHeader className="pb-2 px-0 pt-0">
               <CardTitle className="text-base">
                 Personalized Recommendations
               </CardTitle>
+              <CardDescription>
+                Smart suggestions based on your habits and mood patterns.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-0 space-y-3">
-              <div className="flex items-start p-3 border rounded-md">
+            <CardContent className="pt-0 space-y-3 px-0">
+              <div className="flex items-start p-3 bg-border rounded-md">
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full text-green-600 dark:text-green-300 mr-3">
                   <Dumbbell className="h-4 w-4" />
                 </div>
@@ -702,7 +659,7 @@ export default function JournalPage() {
                 </div>
               </div>
 
-              <div className="flex items-start p-3 border rounded-md">
+              <div className="flex items-start p-3 bg-border rounded-md">
                 <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300 mr-3">
                   <Moon className="h-4 w-4" />
                 </div>
@@ -721,7 +678,7 @@ export default function JournalPage() {
                 </div>
               </div>
 
-              <div className="flex items-start p-3 border rounded-md">
+              <div className="flex items-start p-3 bg-border rounded-md">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300 mr-3">
                   <Users className="h-4 w-4" />
                 </div>
@@ -743,53 +700,43 @@ export default function JournalPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="history" className="p-4 space-y-6">
+        <TabsContent value="history" className="p-4 space-y-6 px-0">
           {/* Calendar View */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="border-none shadow-none">
+            <CardHeader className="pb-2 px-0 mb-2 pt-0">
               <CardTitle className="text-base">Your Journal Calendar</CardTitle>
+              <CardDescription>
+                A timeline of your experiences to help you grow.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 px-0">
               <Calendar
                 mode="single"
-                selected={date}
+                selected={selectedDate}
                 onSelect={setDate}
-                className="rounded-md border"
+                className="bg-border rounded-md border p-4 w-full"
                 components={{
-                  Day: ({ day, ...props }) => {
-                    // Make sure day is a valid Date object
-                    if (
-                      !day ||
-                      !(day instanceof Date) ||
-                      isNaN(day.getTime())
-                    ) {
-                      return <button {...props}>{props.children}</button>;
-                    }
-
-                    // Find matching entry
+                  DayContent: ({ date, displayMonth, ...props }) => {
                     const entry = moodHistory.find(
-                      (d) => d.date && isSameDay(d.date, day),
+                      (d) => d.date && date && isSameDay(d.date, date),
                     );
-
                     return (
-                      <button
-                        {...props}
+                      <span
                         className={cn(
-                          props.className,
+                          "h-8 w-8 p-2 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
                           entry && getMoodColor(entry.mood),
-                          "relative",
                         )}
                       >
-                        {props.children}
+                        {date.getDate()}
                         {entry && (
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-current" />
+                          <span className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-current" />
                         )}
-                      </button>
+                      </span>
                     );
                   },
                 }}
               />
-              <div className="flex justify-center gap-4 mt-4">
+              <div className="flex justify-center gap-16 mt-4">
                 <div className="flex items-center">
                   <div className="h-3 w-3 rounded-full bg-green-500 mr-1"></div>
                   <span className="text-xs">Great</span>
@@ -808,48 +755,46 @@ export default function JournalPage() {
 
           {/* Selected Day Details */}
           {todaysMood && (
-            <Card>
+            <Card className="bg-border">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">
                   {format(todaysMood.date, "MMMM d, yyyy")}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0 space-y-3">
+              <CardContent className="pt-0 space-y-3 ">
                 <div className="flex items-center gap-2">
                   <div
                     className={cn(
-                      "p-2 rounded-full",
+                      "py-1 rounded-full",
                       getMoodColor(todaysMood.mood),
                     )}
                   >
                     {getMoodIcon(todaysMood.mood)}
                   </div>
                   <div>
-                    <span className="font-medium">
-                      Mood: {todaysMood.mood}/10
-                    </span>
+                    <span className="font-medium">Mood: {todaysMood.mood}</span>
                     <span className="text-xs text-muted-foreground ml-2">
                       ({getMoodText(todaysMood.mood)})
                     </span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-4 text-sm ">
                   <div className="flex items-center">
-                    <Moon className="h-4 w-4 mr-1 text-indigo-600" />
+                    <Moon className="h-4 w-4 mr-1 text-primary" />
                     <span>Sleep: {todaysMood.sleep} hours</span>
                   </div>
                   <div className="flex items-center">
-                    <Activity className="h-4 w-4 mr-1 text-indigo-600" />
-                    <span>Energy: {todaysMood.energy}/10</span>
+                    <Activity className="h-4 w-4 mr-1 text-primary" />
+                    <span>Energy: {todaysMood.energy}</span>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-medium mb-1">Activities:</h3>
+                  <h3 className="text-sm font-medium mb-2">Activities:</h3>
                   <div className="flex flex-wrap gap-1">
                     {todaysMood.activities.map((activity, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">
+                      <Badge key={i} className="text-xs">
                         {activityOptions.find((a) => a.id === activity)
                           ?.label || activity}
                       </Badge>
@@ -858,7 +803,6 @@ export default function JournalPage() {
                 </div>
 
                 <div className="border-t pt-2 mt-2">
-                  <h3 className="text-sm font-medium mb-1">Journal Entry:</h3>
                   <p className="text-sm text-muted-foreground">
                     Today was a productive day. I managed to finish my
                     assignment ahead of schedule and had time to go for a run in
@@ -870,13 +814,19 @@ export default function JournalPage() {
           )}
 
           {/* Past Entries */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="border-none">
+            <CardHeader className="pb-2 px-0 pt-0 m-0">
               <CardTitle className="text-base">Recent Entries</CardTitle>
+              <CardDescription>
+                Your latest reflections at a glance.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-0 space-y-3">
+            <CardContent className="pt-0 space-y-3 px-0">
               {moodHistory.slice(0, 5).map((day, i) => (
-                <div key={i} className="flex items-start p-3 border rounded-md">
+                <div
+                  key={i}
+                  className="flex items-start p-3 bg-border rounded-md"
+                >
                   <div
                     className={cn(
                       "p-2 rounded-full mr-3",
@@ -917,32 +867,11 @@ export default function JournalPage() {
                 </div>
               ))}
 
-              <Button variant="outline" className="w-full text-xs">
-                View All Entries
-              </Button>
+              <Button className="w-full text-xs">View All Entries</Button>
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>{" "}
+      </Tabs>
     </div>
-  );
-}
-
-function Cloud(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-    </svg>
   );
 }

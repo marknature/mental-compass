@@ -16,11 +16,12 @@ import { getEvents } from "@/services/database/queries/events";
 
 export default async function Events() {
   const { data: events } = await getEvents();
-  const upcomingEvents = events.filter((event) => event.status === "upcoming");
-  const ongoingEvents = events.filter((event) => event.status === "ongoing");
-  const completedEvents = events.filter(
-    (event) => event.status === "completed",
-  );
+  const upcomingEvents =
+    events?.filter((event) => event.status === "upcoming") ?? [];
+  const ongoingEvents =
+    events?.filter((event) => event.status === "ongoing") ?? [];
+  const completedEvents =
+    events?.filter((event) => event.status === "completed") ?? [];
 
   return (
     <>
@@ -150,8 +151,10 @@ function CompactEventCard({ event }: { event: Event }) {
 }
 
 function renderEventList(events: Event[], message: string) {
-  return events.length ? (
-    events.map((event, index) => <CompactEventCard key={index} event={event} />)
+  return events?.length ? (
+    events?.map((event, index) => (
+      <CompactEventCard key={index} event={event} />
+    ))
   ) : (
     <div className="flex justify-center items-center h-32">
       <p className="text-muted-foreground">{message}</p>

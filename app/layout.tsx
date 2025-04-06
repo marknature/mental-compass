@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Epilogue } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { ReactQueryProvider } from "@/lib/react-query/providers";
 
 const epilogue = Epilogue({
   subsets: ["latin"],
@@ -22,8 +23,7 @@ export default function RootLayout({
       <body
         className={`min-h-screen flex items-center justify-center dark  ${epilogue.className} relative antialiased `}
       >
-        {children}
-        <Toaster richColors />
+        <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>
   );

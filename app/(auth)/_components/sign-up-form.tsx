@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -22,6 +21,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { signup } from "../(auth)/sign-in/actions";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { type AuthError } from "@supabase/supabase-js";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 // Validation schema using Zod
 const signupSchema = z
@@ -41,6 +46,8 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const router = useRouter();
+  const [errors, setErrors] = useState<AuthError | null>(null);
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -51,6 +58,31 @@ export function SignupForm({
       confirmPassword: "",
     },
   });
+
+  const onSubmit = async (data: z.infer<typeof signupSchema>) => {
+    const supabase = createClient();
+    const params = new URLSearchParams("");
+    params.set("confirmEmail", "true");
+
+    const signUpdata = {
+      options: {
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+        },
+      },
+      email: data.email,
+      password: data.password,
+    };
+
+    const { error } = await supabase.auth.signUp(signUpdata);
+
+    if (error) {
+      router.push("/error");
+    }
+
+    router.push(`/sign-in?${params}`);
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -78,6 +110,13 @@ export function SignupForm({
                 </span>
               </div>
               <div className="grid gap-3">
+                {errors && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Could not login</AlertTitle>
+                    <AlertDescription>{errors.message}</AlertDescription>
+                  </Alert>
+                )}{" "}
                 <FormField
                   control={form.control}
                   name="firstName"

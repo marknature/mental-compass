@@ -20,7 +20,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { login } from "../(auth)/sign-in/actions";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { type AuthError } from "@supabase/supabase-js";
 
 // Validation schema using zod
 const loginSchema = z.object({
@@ -32,6 +37,9 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const router = useRouter();
+  const params = useSearchParams();
+  const [errors, setErrors] = useState<AuthError | null>(null);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -40,9 +48,18 @@ export function LoginForm({
     },
   });
 
-  const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    console.log("Form submitted:", data);
-    // Handle authentication logic here
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword(data);
+    console.log(error);
+
+    setErrors(error);
+
+    if (error) {
+      router.push("/error");
+    }
+
+    router.push("/");
   };
 
   return (
@@ -56,7 +73,7 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form action={login} className="grid gap-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
               <div className="grid gap-4">
                 <Button variant="outline" className="w-full">
                   Login with Apple
@@ -71,6 +88,22 @@ export function LoginForm({
                 </span>
               </div>
               <div className="grid gap-6">
+                {params.get("confirmEmail") && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Signup successfull</AlertTitle>
+                    <AlertDescription>
+                      Please check your emails to verify your account
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {errors && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Could not login</AlertTitle>
+                    <AlertDescription>{errors.message}</AlertDescription>
+                  </Alert>
+                )}{" "}
                 <FormField
                   control={form.control}
                   name="email"

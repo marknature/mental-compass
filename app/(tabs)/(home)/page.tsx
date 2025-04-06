@@ -6,30 +6,47 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useEvents } from "@/lib/hooks/useEvents";
 import { getGreeting } from "@/lib/hooks/useGreeting";
 import { useUser } from "@/lib/hooks/useUsers";
-import { subDays } from "date-fns";
 import Link from "next/link";
 import EventCard from "./_components/events-card";
 import { MeditationList } from "./_components/meditation-list";
 import { MoodCalendar } from "./_components/mood-calender";
+import { useJournals } from "@/lib/hooks/useJournals";
+import { Flame, Star, Trophy, Calendar, Award } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function Home() {
-  const { data: events, isLoading: eventsIsLoading } = useEvents({
+  const { data: events = [], isLoading: eventsIsLoading } = useEvents({
     limit: 3,
     status: ["upcoming"],
   });
   const { data: user, isLoading: userIsLoading } = useUser();
+  const { data: journals = [], isLoading: journalsIsLoading } = useJournals();
 
-  if (eventsIsLoading || userIsLoading) return <Loading title="home" />;
+  const streakCount = 5;
+
+  if (eventsIsLoading || userIsLoading || journalsIsLoading)
+    return <Loading title="home" />;
 
   return (
     <div className="space-y-6">
-      <header className="flex items-start justify-between">
+      <header className="flex items-center justify-between">
         <div>
           <h1 className="text-foreground">{getGreeting()}</h1>
           <h3 className="font-semibold text-sm text-muted-foreground">
             {user.user_metadata?.first_name || ""}{" "}
             {user.user_metadata?.last_name || ""}
           </h3>
+        </div>
+        <div className="flex justify-center items-center gap-2">
+          <Flame className="h-5 w-5 text-primary animate-pulse" />
+          <div className="font-semibold text-xs flex flex-col items-center justify-center">
+            {streakCount} day streak!
+          </div>
         </div>
       </header>
 
@@ -75,17 +92,7 @@ export default function Home() {
             Track your mood over the past weeks
           </p>
         </div>
-        <MoodCalendar
-          data={[
-            { date: subDays(new Date(), 6), mood: 8 },
-            { date: subDays(new Date(), 5), mood: 7 },
-            { date: subDays(new Date(), 4), mood: 5 },
-            { date: subDays(new Date(), 3), mood: 3 },
-            { date: subDays(new Date(), 2), mood: 6 },
-            { date: subDays(new Date(), 1), mood: 9 },
-            { date: new Date(), mood: 8 },
-          ]}
-        />
+        <MoodCalendar data={journals} />
       </div>
 
       <section className="px-0 py-6">

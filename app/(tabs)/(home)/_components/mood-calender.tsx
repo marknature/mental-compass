@@ -4,14 +4,10 @@ import { useState } from "react";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Smile, Meh, Frown } from "lucide-react";
-
-interface MoodData {
-  date: Date;
-  mood: number | null;
-}
+import { MoodLog } from "@/services/database/schema/mood/mood-logs.schema";
 
 interface MoodCalendarProps {
-  data: MoodData[];
+  data: MoodLog[];
   className?: string;
 }
 
@@ -25,7 +21,7 @@ export function MoodCalendar({ data, className }: MoodCalendarProps) {
   );
 
   // Get month name if the week spans two months
-  const monthName = format(weekDays[3], "MMM");
+  const monthName = format(weekDays[3], "MMMM");
 
   // Function to get mood emoji based on score
   const getMoodEmoji = (score: number | null) => {
@@ -40,12 +36,15 @@ export function MoodCalendar({ data, className }: MoodCalendarProps) {
 
   // Function to find mood data for a specific date
   const getMoodForDate = (date: Date): number | null => {
-    const entry = data.find((item) => isSameDay(item.date, date));
-    return entry ? entry.mood : null;
+    const entry = data.find((item) => isSameDay(item.created_at, date));
+    return entry ? entry.mood_score : null;
   };
 
   return (
     <div className={cn("bg-border rounded-xl p-3 py-4 ", className)}>
+      <h1 className="text-sm text-muted-foreground">
+        Showing moods for {monthName}
+      </h1>
       <div className="grid grid-cols-7 gap-2 ">
         {/* Day names */}
         {["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"].map((day, i) => (

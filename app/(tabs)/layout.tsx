@@ -1,7 +1,6 @@
 "use client";
 
 import "../globals.css";
-import { Toaster } from "@/components/ui/sonner";
 import { BottomNavigation } from "../_components/mobile-nav";
 import PageHeader from "../_components/page-header";
 
@@ -16,8 +15,6 @@ export default function RootLayout({
         <PageHeader />
         {children}
       </main>
-
-      <Toaster richColors position="top-center" />
       <BottomNavigation />
     </>
   );

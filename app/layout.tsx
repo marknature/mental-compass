@@ -23,6 +23,7 @@ export default function RootLayout({
       <body
         className={`min-h-screen flex items-center justify-center dark  ${epilogue.className} relative antialiased `}
       >
+        <Toaster richColors position="top-center" />
         <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>

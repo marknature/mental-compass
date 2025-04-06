@@ -23,9 +23,10 @@ import { useForm } from "react-hook-form";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, Check, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { type AuthError } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 // Validation schema using zod
 const loginSchema = z.object({
@@ -39,6 +40,7 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
   const params = useSearchParams();
+
   const [errors, setErrors] = useState<AuthError | null>(null);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -62,23 +64,30 @@ export function LoginForm({
     router.push("/");
   };
 
+  useEffect(() => {
+    if (params.get("confirmEmail")) {
+      const notification = toast.success("Sign up successful", {
+        description: "Please check your emails to verify your account",
+        duration: 15000,
+      });
+      return () => {
+        toast.dismiss(notification);
+      };
+    }
+  }, []);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-none">
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Login with your Apple or Google account
-          </CardDescription>
+          <CardDescription>Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
               <div className="grid gap-4">
-                <Button variant="outline" className="w-full">
-                  Login with Apple
-                </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled>
                   Login with Google
                 </Button>
               </div>
@@ -88,15 +97,6 @@ export function LoginForm({
                 </span>
               </div>
               <div className="grid gap-6">
-                {params.get("confirmEmail") && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Signup successfull</AlertTitle>
-                    <AlertDescription>
-                      Please check your emails to verify your account
-                    </AlertDescription>
-                  </Alert>
-                )}
                 {errors && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
@@ -111,11 +111,7 @@ export function LoginForm({
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="m@example.com"
-                          {...field}
-                        />
+                        <Input type="email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -20,13 +20,13 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { signup } from "../(auth)/sign-in/actions";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { type AuthError } from "@supabase/supabase-js";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { on } from "events";
 
 // Validation schema using Zod
 const signupSchema = z
@@ -90,17 +90,14 @@ export function SignupForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create an Account</CardTitle>
           <CardDescription>
-            Sign up with your Apple or Google account
+            Sign up with your Google account or create an account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form action={signup} className="grid gap-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
               <div className="grid gap-4">
-                <Button variant="outline" className="w-full">
-                  Sign up with Apple
-                </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled>
                   Sign up with Google
                 </Button>
               </div>

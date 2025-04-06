@@ -50,20 +50,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { getMoodLogs } from "@/services/queries/mood-logs";
+import { toast } from "sonner";
+import Loading from "@/app/_components/loading";
+import { useJournals } from "@/lib/hooks/useJournals";
 
 type Props = {};
 
 export default function Journal(props: Props) {
-  const { data } = useSuspenseQuery({
-    queryKey: ["mood_logs"],
-    queryFn: async () => {
-      try {
-        return await getMoodLogs({});
-      } catch (error) {
-        console.log(error);
-      }
-    },
-  });
+  const { data, isLoading } = useJournals();
 
   const form = useForm<z.infer<typeof moodLogSchema>>({
     resolver: zodResolver(moodLogSchema),
@@ -89,11 +83,18 @@ export default function Journal(props: Props) {
         console.log(error);
       }
     },
+    onSuccess(data) {
+      toast.success("Journal entry has been recorded");
+    },
+    onError(error) {
+      console.log(error);
+      toast.error("Journal entry has not been recorded");
+    },
   });
 
   function onSubmit(values: z.infer<typeof moodLogSchema>) {
     console.log(values);
-    mutation.mutate(values);
+    mutation.mutate({ ...values, activities });
   }
 
   const [promptIndex, setPromptIndex] = useState<number>(0);
@@ -102,6 +103,8 @@ export default function Journal(props: Props) {
   const nextPrompt = () => {
     setPromptIndex((promptIndex + 1) % journalPrompts.length);
   };
+
+  if (isLoading) return <Loading title="Journal" />;
 
   return (
     <>
@@ -368,9 +371,7 @@ export default function Journal(props: Props) {
               <Button
                 type="submit"
                 className="w-full relative overflow-hidden"
-                onClick={() => {
-                  console.log(form.formState.defaultValues);
-                }}
+                disabled={mutation.isPending}
               >
                 <Save className="mr-2 h-4 w-4" />
                 {mutation.isPending ? "Saving..." : "Save Entry"}

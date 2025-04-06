@@ -1,13 +1,9 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import Journal from "./_components/create-journal-entry";
 import History from "./_components/history";
-import Insights from "./_components/inights";
-import { TabErrorFallback } from "./_components/tab-fallback";
-import Loading from "@/app/_components/loading";
+import ComingSoon from "@/app/_components/coming-soon";
 
 export default function JournalPage() {
   return (
@@ -37,27 +33,16 @@ export default function JournalPage() {
         </div>
 
         <TabsContent value="today" className="p-4 px-0 space-y-4">
-          <ErrorBoundary FallbackComponent={TabErrorFallback}>
-            <Suspense fallback={<Loading title="journal" />}>
-              <Journal />
-            </Suspense>
-          </ErrorBoundary>
+          <Journal />
         </TabsContent>
 
         <TabsContent value="insights" className="p-4 space-y-6 px-0">
-          <ErrorBoundary FallbackComponent={TabErrorFallback}>
-            <Suspense fallback={<Loading title="insights" />}>
-              <Insights />
-            </Suspense>
-          </ErrorBoundary>
+          <ComingSoon title="Insights" />
+          {/* <Insights /> */}
         </TabsContent>
 
         <TabsContent value="history" className="p-4 space-y-6 px-0">
-          <ErrorBoundary FallbackComponent={TabErrorFallback}>
-            <Suspense fallback={<Loading title="history" />}>
-              <History />
-            </Suspense>
-          </ErrorBoundary>
+          <History />
         </TabsContent>
       </Tabs>
     </div>

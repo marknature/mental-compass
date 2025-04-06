@@ -72,7 +72,7 @@ export default function History({}: Props) {
                 return (
                   <span
                     className={cn(
-                      "h-8 w-8 p-1 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
+                      "h-8 w-8 py-2 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
                       entry && getMoodColor(entry.mood_score),
                     )}
                   >

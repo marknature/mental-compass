@@ -4,49 +4,87 @@ import type React from "react";
 
 import { Progress } from "@/components/ui/progress";
 import {
-  ArrowLeft,
   Award,
-  BookOpen,
+  Calendar,
   Gift,
   Heart,
-  History,
+  LogOut,
   Settings,
   Smile,
-  Star,
-  Users,
 } from "lucide-react";
 
 import { useState } from "react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/hooks/useUsers";
+import Loading from "@/app/_components/loading";
+import EditProfile from "./_components/edit-profile";
+import { avatarOptions } from "./_components/avatars";
+import Rewards from "./_components/rewards";
+import Events from "./_components/events";
+import MoodTracker from "./_components/mood-tracker";
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const supabase = createClient();
   const [activeSection, setActiveSection] = useState<string>("dashboard");
+  const { data: user, isLoading } = useUser();
+
+  const logout = async () => {
+    setActiveSection("logout");
+    const { error } = await supabase.auth.signOut({ scope: "global" });
+    if (!error) router.push("/sign-in");
+  };
 
   const renderContent = () => {
     switch (activeSection) {
+      case "events":
+        return <Events />;
+      case "rewards":
+        return <Rewards />;
+      case "mood":
+        return <MoodTracker />;
+      case "settings":
+        return (
+          <EditProfile user={user} onUpdate={() => console.log("edited")} />
+        );
       default:
         return <Dashboard />;
     }
   };
 
+  if (isLoading) return <Loading title="profile" />;
+
+  // Find the avatar component based on the user's avatar_id
+  const avatarId = user.user_metadata?.avatar_id || "mindfulness";
+  const avatarOption = avatarOptions.find((option) => option.id === avatarId);
+  const UserAvatar = avatarOption
+    ? avatarOption.component
+    : avatarOptions[0].component;
+
   return (
     <>
       {/* Profile Header */}
-      <div className="flex items-center gap-3 !mb-8">
-        <Avatar className="h-20 w-20 bg-primary rounded-xl">
-          <AvatarImage
-            src="/placeholder.svg?height=64&width=64"
-            alt="Sarah Johnson"
-          />
+      <div className="flex items-start gap-3 !mb-8">
+        <Avatar className="h-20 w-20  rounded-xl overflow-hidden">
+          <UserAvatar />
         </Avatar>
-        <div className="flex-1">
-          <h1 className="text-sm font-semibold">Sarah Johnson</h1>
+        <div className="flex-1 space-y-2">
+          <div className="flex justify-between items-center">
+            <h1 className="text-sm font-semibold">
+              {user.user_metadata?.first_name || ""}{" "}
+              {user.user_metadata?.last_name || ""}
+            </h1>
+            <Badge className="text-xs rounded-sm">Level 5</Badge>
+          </div>
           <div className="mt-1 space-y-1">
-            <div className="text-sm flex gap-1">
-              <p>Streak: 24</p> • <p>Badges: 24</p>
+            <div className="text-muted-foreground text-sm flex gap-1">
+              <p>Streak: 24</p> • <p>Points: 24</p>
             </div>
             <div className="flex justify-between text-sm mb-1">
-              <span>Wellness Points</span>
+              <span>Progress to Level 6</span>
               <span>750 / 1000</span>
             </div>
             <Progress value={75} className="h-1.5" />
@@ -57,16 +95,16 @@ export default function ProfilePage() {
       {/* Navigation Grid */}
       <div className="grid grid-cols-2 gap-2 mb-8">
         <NavItem
-          icon={<Smile />}
-          label="Mood"
-          isActive={activeSection === "mood"}
-          onClick={() => setActiveSection("mood")}
+          icon={<Heart />}
+          label="Activity"
+          isActive={activeSection === "dashboard"}
+          onClick={() => setActiveSection("dashboard")}
         />
         <NavItem
-          icon={<BookOpen />}
-          label="Challenges"
-          isActive={activeSection === "challenges"}
-          onClick={() => setActiveSection("challenges")}
+          icon={<Calendar />}
+          label="Events"
+          isActive={activeSection === "events"}
+          onClick={() => setActiveSection("events")}
         />
         <NavItem
           icon={<Gift />}
@@ -75,39 +113,28 @@ export default function ProfilePage() {
           onClick={() => setActiveSection("rewards")}
         />
         <NavItem
-          icon={<Users />}
-          label="Community"
-          isActive={activeSection === "community"}
-          onClick={() => setActiveSection("community")}
+          icon={<Smile />}
+          label="Mood"
+          isActive={activeSection === "mood"}
+          onClick={() => setActiveSection("mood")}
         />
-        <NavItem
-          icon={<Star />}
-          label="Badges"
-          isActive={activeSection === "badges"}
-          onClick={() => setActiveSection("badges")}
-        />
-        <NavItem
-          icon={<Heart />}
-          label="Wellness"
-          isActive={activeSection === "wellness"}
-          onClick={() => setActiveSection("wellness")}
-        />
-        <NavItem
-          icon={<History />}
-          label="History"
-          isActive={activeSection === "history"}
-          onClick={() => setActiveSection("history")}
-        />
+
         <NavItem
           icon={<Settings />}
-          label="Settings"
+          label="Edit Profile"
           isActive={activeSection === "settings"}
           onClick={() => setActiveSection("settings")}
+        />
+        <NavItem
+          icon={<LogOut />}
+          label="Logout"
+          isActive={activeSection === "logout"}
+          onClick={logout}
         />
       </div>
 
       {/* Main Content */}
-      <div className="space-y-4">{renderContent()}</div>
+      <div className="space-y-4 w-full">{renderContent()}</div>
     </>
   );
 }

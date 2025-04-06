@@ -1,22 +1,24 @@
 import { eq, and, gte, desc } from "drizzle-orm";
 import { subDays } from "date-fns";
 import { db } from "..";
-import journalEntries from "../schema/journal-entries.schema";
-import moodInsights from "../schema/mood-insights.schema";
+import mood_logs from "../schema/mood/mood-logs.schema";
+import mood_insights from "../schema/mood/mood-insights.schema";
 import recommendations from "../schema/recommendations.schema";
+import { Activity } from "lucide-react";
 
 // Generate insights based on journal entries
 export async function generateInsights(userId: string): Promise<void> {
+  console.log("generating insights");
   try {
     // Get entries from the last 30 days
     const lastMonth = subDays(new Date(), 30);
     const entries = await db
       .select()
-      .from(journalEntries)
+      .from(mood_logs)
       .where(
         and(
-          eq(journalEntries.userId, userId),
-          gte(journalEntries.date, lastMonth),
+          eq(mood_logs.user_id, userId),
+          gte(mood_logs.created_at, lastMonth),
         ),
       );
 
@@ -45,7 +47,8 @@ export async function generateInsights(userId: string): Promise<void> {
 
     // Calculate average mood overall
     const overallAvgMood =
-      entries.reduce((sum, entry) => sum + entry.moodScore, 0) / entries.length;
+      entries.reduce((sum, entry) => sum + entry.mood_score, 0) /
+      entries.length;
 
     // Calculate mood averages for each activity
     activities.forEach((activity) => {
@@ -58,12 +61,14 @@ export async function generateInsights(userId: string): Promise<void> {
 
       if (entriesWithActivity.length >= 3) {
         const withActivityAvg =
-          entriesWithActivity.reduce((sum, entry) => sum + entry.moodScore, 0) /
-          entriesWithActivity.length;
+          entriesWithActivity.reduce(
+            (sum, entry) => sum + entry.mood_score,
+            0,
+          ) / entriesWithActivity.length;
         const withoutActivityAvg =
           entriesWithoutActivity.length > 0
             ? entriesWithoutActivity.reduce(
-                (sum, entry) => sum + entry.moodScore,
+                (sum, entry) => sum + entry.mood_score,
                 0,
               ) / entriesWithoutActivity.length
             : overallAvgMood;
@@ -73,7 +78,7 @@ export async function generateInsights(userId: string): Promise<void> {
         activityInsights[activity] = {
           count: entriesWithActivity.length,
           totalMood: entriesWithActivity.reduce(
-            (sum, entry) => sum + entry.moodScore,
+            (sum, entry) => sum + entry.mood_score,
             0,
           ),
           avgMood: withActivityAvg,
@@ -84,55 +89,20 @@ export async function generateInsights(userId: string): Promise<void> {
       }
     });
 
-    // Generate sleep insights
-    const sleepData = entries.filter((entry) => entry.sleepHours !== null);
-    let sleepInsight = null;
-
-    if (sleepData.length >= 5) {
-      const goodSleepEntries = sleepData.filter(
-        (entry) => entry.sleepHours >= 7,
-      );
-      const poorSleepEntries = sleepData.filter(
-        (entry) => entry.sleepHours < 7,
-      );
-
-      if (goodSleepEntries.length >= 3 && poorSleepEntries.length >= 3) {
-        const goodSleepMoodAvg =
-          goodSleepEntries.reduce((sum, entry) => sum + entry.moodScore, 0) /
-          goodSleepEntries.length;
-        const poorSleepMoodAvg =
-          poorSleepEntries.reduce((sum, entry) => sum + entry.moodScore, 0) /
-          poorSleepEntries.length;
-
-        const sleepImpact = goodSleepMoodAvg - poorSleepMoodAvg;
-
-        if (Math.abs(sleepImpact) >= 1) {
-          sleepInsight = {
-            factor: "sleep_duration",
-            impact: sleepImpact / 10, // Normalize to -1 to 1 scale
-            confidence: Math.min(sleepData.length / 10, 0.9), // Max confidence of 0.9
-            description:
-              sleepImpact > 0
-                ? "You report higher mood scores when you sleep 7 or more hours"
-                : "Your mood appears to be better with less sleep, which is unusual",
-          };
-        }
-      }
-    }
+    console.log(activityInsights);
 
     // Save activity insights to database
     for (const [activity, data] of Object.entries(activityInsights)) {
       if (Math.abs(data.impact) >= 0.5) {
-        // Only save significant insights
         // Check if insight already exists
         const [existingInsight] = await db
           .select()
-          .from(moodInsights)
+          .from(mood_insights)
           .where(
             and(
-              eq(moodInsights.userId, userId),
-              eq(moodInsights.type, "activity"),
-              eq(moodInsights.factor, activity),
+              eq(mood_insights.user_id, userId),
+              eq(mood_insights.insight_type, "activity"),
+              eq(mood_insights.contributing_factor, activity),
             ),
           )
           .limit(1);
@@ -148,63 +118,26 @@ export async function generateInsights(userId: string): Promise<void> {
         if (existingInsight) {
           // Update existing insight
           await db
-            .update(moodInsights)
+            .update(mood_insights)
             .set({
-              impact: normalizedImpact,
-              confidence,
+              impact_score: normalizedImpact,
+              confidence_level: confidence,
               description,
-              updatedAt: new Date(),
+              updated_at: new Date(),
             })
-            .where(eq(moodInsights.id, existingInsight.id));
+            .where(eq(mood_insights.id, existingInsight.id));
         } else {
           // Create new insight
-          await db.insert(moodInsights).values({
-            userId,
-            type: "activity",
-            factor: activity,
-            impact: normalizedImpact,
-            confidence,
+
+          await db.insert(mood_insights).values({
+            user_id: userId,
+            insight_type: "activity",
+            contributing_factor: activity,
+            impact_score: normalizedImpact,
+            confidence_level: confidence,
             description,
           });
         }
-      }
-    }
-
-    // Save sleep insight if it exists
-    if (sleepInsight) {
-      const [existingSleepInsight] = await db
-        .select()
-        .from(moodInsights)
-        .where(
-          and(
-            eq(moodInsights.userId, userId),
-            eq(moodInsights.type, "sleep"),
-            eq(moodInsights.factor, sleepInsight.factor),
-          ),
-        )
-        .limit(1);
-
-      if (existingSleepInsight) {
-        // Update existing insight
-        await db
-          .update(moodInsights)
-          .set({
-            impact: sleepInsight.impact,
-            confidence: sleepInsight.confidence,
-            description: sleepInsight.description,
-            updatedAt: new Date(),
-          })
-          .where(eq(moodInsights.id, existingSleepInsight.id));
-      } else {
-        // Create new insight
-        await db.insert(moodInsights).values({
-          userId,
-          type: "sleep",
-          factor: sleepInsight.factor,
-          impact: sleepInsight.impact,
-          confidence: sleepInsight.confidence,
-          description: sleepInsight.description,
-        });
       }
     }
 
@@ -221,60 +154,43 @@ async function generateRecommendations(userId: string): Promise<void> {
     // Get all insights for the user
     const insights = await db
       .select()
-      .from(moodInsights)
-      .where(eq(moodInsights.userId, userId))
-      .orderBy(desc(moodInsights.impact));
+      .from(mood_insights)
+      .where(eq(mood_insights.user_id, userId))
+      .orderBy(desc(mood_insights.impact_score));
 
     // Clear existing recommendations
-    await db.delete(recommendations).where(eq(recommendations.userId, userId));
+    await db.delete(recommendations).where(eq(recommendations.user_id, userId));
 
     // Generate new recommendations
     const newRecommendations = [];
 
     // Activity-based recommendations
     const activityInsights = insights.filter(
-      (insight) => insight.type === "activity",
+      (insight) => insight.insight_type === "activity",
     );
 
     for (const insight of activityInsights) {
-      if (insight.impact > 0.2) {
+      if (insight.impact_score > 0.2) {
         // Positive impact
         newRecommendations.push({
-          userId,
-          title: `Increase ${insight.factor}`,
+          user_id: userId,
+          title: `Increase ${insight.contributing_factor}`,
           description: `${insight.description}. Try to include this activity more often in your routine.`,
-          type: insight.factor.includes("exercise")
+          type: insight.contributing_factor.includes("exercise")
             ? "exercise"
-            : insight.factor.includes("social")
+            : insight.contributing_factor.includes("social")
               ? "social"
               : "other",
-          priority: Math.round(insight.impact * 5), // 1-5 scale
+          priority: Math.round(insight.impact_score * 5), // 1-5 scale
         });
-      } else if (insight.impact < -0.2) {
+      } else if (insight.impact_score < -0.2) {
         // Negative impact
         newRecommendations.push({
-          userId,
-          title: `Reduce ${insight.factor}`,
+          user_id: userId,
+          title: `Reduce ${insight.contributing_factor}`,
           description: `${insight.description}. Consider reducing this activity or finding alternatives.`,
           type: "other",
-          priority: Math.round(Math.abs(insight.impact) * 3), // Lower priority for negative recommendations
-        });
-      }
-    }
-
-    // Sleep-based recommendations
-    const sleepInsights = insights.filter(
-      (insight) => insight.type === "sleep",
-    );
-
-    for (const insight of sleepInsights) {
-      if (insight.impact > 0.2) {
-        newRecommendations.push({
-          userId,
-          title: "Improve Sleep Quality",
-          description: `${insight.description}. Aim for 7-8 hours of quality sleep each night.`,
-          type: "sleep",
-          priority: Math.round(insight.impact * 5), // 1-5 scale
+          priority: Math.round(Math.abs(insight.impact_score) * 3), // Lower priority for negative recommendations
         });
       }
     }

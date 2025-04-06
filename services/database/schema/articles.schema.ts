@@ -7,20 +7,24 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-// Articles table
 export const articles = pgTable("articles", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  content: text("content").notNull(),
-  summary: text("summary").notNull(),
-  coverImage: text("cover_image"),
-  author: text("author").notNull(),
-  category: text("category").notNull(),
-  tags: text("tags").array(),
-  readTime: integer("read_time").notNull(), // in minutes
-  published: boolean("published").default(false).notNull(),
-  publishedAt: timestamp("published_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  id: uuid().primaryKey().defaultRandom(),
+  title: text().notNull(),
+  slug: text().notNull().unique(),
+  content: text().notNull(),
+  summary: text().notNull(),
+  cover_image: text(),
+  author: text().notNull(),
+  category: text().notNull(),
+  tags: text().array(),
+  read_time: integer().notNull(),
+  is_published: boolean().default(false).notNull(),
+  published_at: timestamp(),
+  created_at: timestamp().defaultNow().notNull(),
+  updated_at: timestamp().defaultNow().notNull(),
 });
+
+export type Article = typeof articles.$inferSelect;
+export type NewArticle = typeof articles.$inferInsert;
+
+export default articles;

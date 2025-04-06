@@ -1,32 +1,15 @@
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCorrelationInsights } from "@/lib/utils";
-import CreateJournalEntry from "./_components/create-journal-entry";
-import Insights from "./_components/inights";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import Journal from "./_components/create-journal-entry";
 import History from "./_components/history";
-import { getJournalEntries } from "@/services/database/queries/journal-entries";
+import Insights from "./_components/inights";
+import { TabErrorFallback } from "./_components/tab-fallback";
+import Loading from "@/app/_components/loading";
 
-export default async function JournalPage() {
-  const { data } = await getJournalEntries();
-  const moodHistory = data?.map((journal) => {
-    const {
-      createdAt,
-      moodScore,
-      activities,
-      sleepHours,
-      energyLevel,
-      journalText,
-    } = journal;
-    return {
-      date: createdAt,
-      mood: moodScore,
-      journalText,
-      activities,
-      sleep: sleepHours,
-      energy: energyLevel,
-    };
-  });
-  const insights = getCorrelationInsights();
-
+export default function JournalPage() {
   return (
     <div className="pb-6">
       <Tabs defaultValue="today" className="w-full">
@@ -54,15 +37,27 @@ export default async function JournalPage() {
         </div>
 
         <TabsContent value="today" className="p-4 px-0 space-y-4">
-          <CreateJournalEntry />
+          <ErrorBoundary FallbackComponent={TabErrorFallback}>
+            <Suspense fallback={<Loading title="journal" />}>
+              <Journal />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="insights" className="p-4 space-y-6 px-0">
-          <Insights insights={insights} />
+          <ErrorBoundary FallbackComponent={TabErrorFallback}>
+            <Suspense fallback={<Loading title="insights" />}>
+              <Insights />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="history" className="p-4 space-y-6 px-0">
-          <History moodHistory={moodHistory} />
+          <ErrorBoundary FallbackComponent={TabErrorFallback}>
+            <Suspense fallback={<Loading title="history" />}>
+              <History />
+            </Suspense>
+          </ErrorBoundary>
         </TabsContent>
       </Tabs>
     </div>

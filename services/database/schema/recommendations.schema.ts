@@ -9,17 +9,17 @@ import {
 import users from "./users.schema";
 
 export const recommendations = pgTable("recommendations", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
+  id: uuid().primaryKey().defaultRandom(),
+  user_id: uuid()
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  type: text("type").notNull(),
-  priority: integer("priority").notNull(),
-  completed: boolean("completed").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  title: text().notNull(),
+  description: text().notNull(),
+  type: text().notNull(),
+  priority: integer().notNull(),
+  is_completed: boolean().default(false).notNull(),
+  created_at: timestamp().defaultNow().notNull(),
+  updated_at: timestamp().defaultNow().notNull(),
 });
 
 export type Recommendation = typeof recommendations.$inferSelect;

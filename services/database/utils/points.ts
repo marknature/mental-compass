@@ -1,8 +1,9 @@
 import { eq, desc } from "drizzle-orm";
 import { startOfDay, subDays, isSameDay, differenceInDays } from "date-fns";
 import { db } from "..";
-import journalEntries from "../schema/journal-entries.schema";
+import { mood_logs } from "../schema/mood/mood-logs.schema";
 import users from "../schema/users.schema";
+
 // Calculate user streak based on journal entries
 export async function calculateStreak(userId: string): Promise<number> {
   try {
@@ -17,11 +18,11 @@ export async function calculateStreak(userId: string): Promise<number> {
     // Get the most recent journal entry
     const [latestEntry] = await db
       .select({
-        date: journalEntries.date,
+        date: mood_logs.created_at,
       })
-      .from(journalEntries)
-      .where(eq(journalEntries.userId, userId))
-      .orderBy(desc(journalEntries.date))
+      .from(mood_logs)
+      .where(eq(mood_logs.user_id, userId))
+      .orderBy(desc(mood_logs.created_at))
       .limit(1);
 
     if (!latestEntry) {
@@ -73,50 +74,50 @@ export async function calculateStreak(userId: string): Promise<number> {
   }
 }
 
-// Award points to a user
-export async function awardPoints(
-  userId: string,
-  amount: number,
-  type: "journal_entry" | "streak" | "achievement" | "event" | "redemption",
-  description: string,
-): Promise<void> {
-  try {
-    // Create a points transaction
-    await db.insert(pointsTransactions).values({
-      userId,
-      amount,
-      type,
-      description,
-    });
-
-    // Update the user's total points
-    await db
-      .update(users)
-      .set({
-        totalPoints: users.totalPoints + amount,
-      })
-      .where(eq(users.id, userId));
-
-    // Check if user should level up (every 500 points)
-    const [userData] = await db
-      .select({
-        totalPoints: users.totalPoints,
-        level: users.level,
-      })
-      .from(users)
-      .where(eq(users.id, userId));
-
-    const newLevel = Math.floor(userData.totalPoints / 500) + 1;
-
-    if (newLevel > userData.level) {
-      await db
-        .update(users)
-        .set({ level: newLevel })
-        .where(eq(users.id, userId));
-
-      // Could trigger a notification or achievement here
-    }
-  } catch (error) {
-    console.error("Error awarding points:", error);
-  }
-}
+// // Award points to a user
+// export async function awardPoints(
+//   userId: string,
+//   amount: number,
+//   type: "journal_entry" | "streak" | "achievement" | "event" | "redemption",
+//   description: string,
+// ): Promise<void> {
+//   try {
+//     // Create a points transaction
+//     await db.insert(pointsTransactions).values({
+//       userId,
+//       amount,
+//       type,
+//       description,
+//     });
+//
+//     // Update the user's total points
+//     await db
+//       .update(users)
+//       .set({
+//         totalPoints: users.totalPoints + amount,
+//       })
+//       .where(eq(users.id, userId));
+//
+//     // Check if user should level up (every 500 points)
+//     const [userData] = await db
+//       .select({
+//         totalPoints: users.totalPoints,
+//         level: users.level,
+//       })
+//       .from(users)
+//       .where(eq(users.id, userId));
+//
+//     const newLevel = Math.floor(userData.totalPoints / 500) + 1;
+//
+//     if (newLevel > userData.level) {
+//       await db
+//         .update(users)
+//         .set({ level: newLevel })
+//         .where(eq(users.id, userId));
+//
+//       // Could trigger a notification or achievement here
+//     }
+//   } catch (error) {
+//     console.error("Error awarding points:", error);
+//   }
+// }

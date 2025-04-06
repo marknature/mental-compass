@@ -1,10 +1,12 @@
-import { pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const activities = pgTable("activities", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  icon: text("icon").notNull(),
-  category: text("category").notNull(),
+  id: uuid().primaryKey().defaultRandom(),
+  name: text().notNull(),
+  icon: text().notNull(),
+  category: text().notNull(),
+  created_at: timestamp().defaultNow().notNull(),
+  updated_at: timestamp().defaultNow().notNull(),
 });
 
 export type Activity = typeof activities.$inferSelect;

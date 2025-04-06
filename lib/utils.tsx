@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { Smile, Meh, Frown, Dumbbell, Moon, Users } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
+import { createClient } from "./supabase/client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -30,10 +32,10 @@ export const getMoodText = (score: number) => {
 };
 
 export const getMoodColor = (score: number) => {
-  if (score >= 8) return " text-green-600 dark:text-green-300";
-  if (score >= 6) return " text-emerald-600  dark:text-emerald-300";
-  if (score >= 4) return " text-yellow-600 dark:text-yellow-300";
-  if (score >= 2) return " text-orange-600  dark:text-orange-300";
+  if (score >= 8) return "font-bold text-green-600 dark:text-green-300";
+  if (score >= 6) return "font-bold text-emerald-600  dark:text-emerald-300";
+  if (score >= 4) return "font-bold text-yellow-600 dark:text-yellow-300";
+  if (score >= 2) return "font-bold text-orange-600  dark:text-orange-300";
   return " text-red-600 dark:text-red-300";
 };
 
@@ -80,4 +82,21 @@ export function slugify(text: string): string {
     .replace(/--+/g, "-") // Replace multiple - with single -
     .replace(/^-+/, "") // Trim - from start of text
     .replace(/-+$/, ""); // Trim - from end of text
+}
+
+export function getErrorMessage(err: unknown) {
+  const unknownError = "Something went wrong, please try again later.";
+
+  if (err instanceof z.ZodError) {
+    const errors = err.issues.map((issue) => {
+      return issue.message;
+    });
+    return errors.join("\n");
+  }
+
+  if (err instanceof Error) {
+    return err.message;
+  }
+
+  return unknownError;
 }

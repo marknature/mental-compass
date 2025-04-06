@@ -25,7 +25,7 @@ export default function PageHeader({}: Props) {
   };
 
   // Hide header on home page
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname === "/events/1") return null;
 
   // Get current page details or fallback to default
   const currentPage = pageDetails[pathname] || {

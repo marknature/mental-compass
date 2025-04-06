@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { mockArticles } from "@/lib/mock-articles";
+import { mockArticles } from "@/lib/data/mock-articles";
 import { ArticleDetail } from "@/app/_components/article-detail";
 
 interface ArticlePageProps {

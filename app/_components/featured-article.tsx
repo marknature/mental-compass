@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
-import { mockArticles } from "@/lib/mock-articles";
+import { mockArticles } from "@/lib/data/mock-articles";
 
 export function FeaturedArticle() {
   const router = useRouter();

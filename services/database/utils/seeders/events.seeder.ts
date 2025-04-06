@@ -1,5 +1,5 @@
 import { db } from "../..";
-import events from "../../schema/events.schema";
+import events from "../../schema/events/events.schema";
 
 const seedEvents = async () => {
   console.log(data);

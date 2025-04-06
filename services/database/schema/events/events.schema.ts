@@ -9,7 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
-export const statusEnum = pgEnum("status", [
+export const status_enum = pgEnum("status", [
   "upcoming",
   "ongoing",
   "completed",
@@ -19,11 +19,11 @@ export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  date: timestamp("date").notNull(),
-  points: integer("points").notNull(),
-  location: text("location").notNull().default("TBA"),
-  status: statusEnum(),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
+  date: timestamp("date"),
+  points: integer("points").default(0),
+  location: text("location").default("TBA"),
+  status: status_enum("status").default("upcoming"),
+  created_at: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const eventSchema = z.object({

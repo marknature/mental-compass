@@ -8,9 +8,7 @@ export async function getMoodLogs(input: Partial<GetMoodLogsSchema>) {
     const serialize = createSerializer(moodLogsParams);
     const params = serialize(input);
 
-    const response = await axios.get(
-      `http://localhost:3000/api/journals${params}`,
-    );
+    const response = await axios.get(`/api/journals${params}`);
 
     if (response.status !== 200) throw new Error("Failed to fetch journals");
 

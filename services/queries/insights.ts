@@ -9,9 +9,7 @@ export async function getInsights(input: Partial<GetInsightsSchema>) {
     const serialize = createSerializer(insightsParams);
     const params = serialize(input);
 
-    const response = await axios.get(
-      `http://localhost:3000/api/insights${params}`,
-    );
+    const response = await axios.get(`/api/insights${params}`);
 
     if (response.status !== 200) throw new Error("Failed to fetch insights");
 

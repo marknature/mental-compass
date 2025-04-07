@@ -11,13 +11,7 @@ import EventCard from "./_components/events-card";
 import { MeditationList } from "./_components/meditation-list";
 import { MoodCalendar } from "./_components/mood-calender";
 import { useJournals } from "@/lib/hooks/useJournals";
-import { Flame, Star, Trophy, Calendar, Award } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Flame } from "lucide-react";
 
 export default function Home() {
   const { data: events = [], isLoading: eventsIsLoading } = useEvents({

@@ -8,9 +8,7 @@ export async function getEvents(input: Partial<GetEventsSchema>) {
     const serialize = createSerializer(eventsParams);
     const params = serialize(input);
 
-    const response = await axios.get(
-      `http://localhost:3000/api/events${params}`,
-    );
+    const response = await axios.get(`/api/events${params}`);
 
     if (response.status !== 200) throw new Error("Failed to fetch events");
 

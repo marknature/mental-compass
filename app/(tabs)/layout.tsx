@@ -14,8 +14,8 @@ export default function RootLayout({
       <main className="relative container mx-auto px-4 py-6 space-y-5 min-h-screen w-[360px] pb-20">
         <PageHeader />
         {children}
+        <BottomNavigation />
       </main>
-      <BottomNavigation />
     </>
   );
 }

@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
   MapPin,
@@ -12,10 +15,15 @@ import {
   Award,
   Calendar,
   ArrowLeft,
+  Clock,
+  Users,
+  Share2,
+  CalendarPlus,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface EventDetailProps {}
+type EventDetailProps = {};
 
 export default function EventDetail({}: EventDetailProps) {
   const event = {
@@ -31,143 +39,208 @@ export default function EventDetail({}: EventDetailProps) {
     image: "/placeholder.svg?height=200&width=400&text=Meditation+Workshop",
     organizer: "Student Wellness Center",
     isRegistered: false,
+    attendees: 250,
   };
 
   const [isRegistered, setIsRegistered] = useState(event.isRegistered || false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const router = useRouter();
 
   const handleRegister = () => {
     setIsRegistered(true);
-    toast("Registered!", {
+    toast.success("Registered!", {
       description: `You'll earn ${event.points} points upon completion.`,
     });
   };
 
-  return (
-    <div className="flex flex-col flex-1 grow h-full bg-background">
-      {/* Hero Image Section with navigation */}
-      <div className="relative w-full h-64 bg-primary/20 rounded-lg">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-        <div className="absolute top-5 left-0 right-0 px-4">
-          <div className="flex justify-between items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full bg-background/80 text-foreground"
-              onClick={() => router.back()}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+  const toggleSave = () => {
+    setIsSaved(!isSaved);
+    toast.success(
+      isSaved ? "Removed from saved events" : "Added to saved events",
+    );
+  };
 
-        {/* Event type and title overlay */}
-        <div className="absolute bottom-6 left-0 right-0 px-4">
-          <div className="text-sm font-medium text-primary-foreground/80">
-            {event.organizer}
-          </div>
-          <h1 className="text-xl font-bold text-primary-foreground">
-            {event.title}
-          </h1>
-          <div className="flex items-center gap-2 mt-1 text-sm text-primary-foreground/70">
-            <Badge>{event.category}</Badge>
-            <span className="capitalize">• 250 people Joined</span>
-          </div>
+  const addToCalendar = () => {
+    toast.success("Added to calendar");
+  };
+
+  const shareEvent = () => {
+    toast.success("Share link copied to clipboard");
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background pb-20">
+      {/* Back button and header */}
+      <div className="sticky top-0 z-10 bg-background flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="m-2"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Hero Image */}
+      <div className="relative w-full h-48">
+        {/* <Image */}
+        {/*   src={event.image || "/placeholder.svg"} */}
+        {/*   alt={""} */}
+        {/*   fill */}
+        {/*   className="object-cover" */}
+        {/*   priority */}
+        {/* /> */}
+        <div className="absolute inset-0 bg-primary rounded-lg" />
+
+        {/* Category badge */}
+        <div className="absolute top-4 right-4">
+          {/* <Badge className="bg-primary hover:bg-primary text-white border-none capitalize"> */}
+          {/*   {event.category} */}
+          {/* </Badge> */}
         </div>
       </div>
 
-      {/* Content Sections */}
-      <div className="flex-1  pt-6">
-        {/* Description Section */}
-        <div className="mb-4">
+      {/* Main content */}
+      <div className="p-4 px-0 space-y-6">
+        {/* Title and organizer */}
+        <div>
+          <h1 className="text-xl font-bold">{event.title}</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {event.organizer}
+          </p>
+        </div>
+
+        {/* Quick info cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-muted/50 p-3 rounded-lg flex flex-col items-center justify-center">
+            <Calendar className="h-5 w-5 text-primary mb-1" />
+            <p className="text-xs text-center font-medium">{event.date}</p>
+          </div>
+          <div className="bg-muted/50 p-3 rounded-lg flex flex-col items-center justify-center">
+            <Clock className="h-5 w-5 text-primary mb-1" />
+            <p className="text-xs text-center font-medium">{event.time}</p>
+          </div>
+        </div>
+
+        {/* Attendees */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Users className="h-4 w-4 mr-1" />
+            <span>{event.attendees} joined</span>
+          </div>
+        </div>
+
+        {/* About section */}
+        <div>
+          <h2 className="text-base font-semibold mb-2">About Event</h2>
+          <div className="relative">
+            <p
+              className={cn(
+                "text-sm text-muted-foreground",
+                !isExpanded && "line-clamp-3",
+              )}
+            >
+              {event.description}
+            </p>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-1 text-sm text-primary mt-2 font-medium"
+            >
+              {isExpanded ? (
+                <>
+                  Show Less <ChevronUp className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Read More <ChevronDown className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <h2 className="text-base font-semibold mb-6">Location</h2>
           <div className="flex items-start gap-3">
+            <div className="p-2 rounded-full bg-primary/10 text-primary">
+              <MapPin className="h-5 w-5" />
+            </div>
             <div>
-              <h2 className="text-base font-medium">Description</h2>
-              <div className="relative mt-1">
-                <p
-                  className={cn(
-                    "text-sm text-muted-foreground",
-                    !isExpanded && "line-clamp-4",
-                  )}
-                >
-                  {event.description}
-                </p>
-                <button
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="flex items-center gap-1 text-sm text-primary mt-2"
-                >
-                  {isExpanded ? (
-                    <>
-                      Show Less <ChevronUp className="h-4 w-4" />
-                    </>
-                  ) : (
-                    <>
-                      Read More <ChevronDown className="h-4 w-4" />
-                    </>
-                  )}
-                </button>
+              <p className="text-sm font-medium">{event.location}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Enter through the main entrance, take the elevator to the second
+                floor
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Points/Rewards */}
+        <div>
+          <h2 className="text-base font-semibold mb-6">Rewards</h2>
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-full bg-primary/10 text-primary">
+              <Award className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center">
+                <span className="text-lg font-bold text-primary mr-2">
+                  {event.points}
+                </span>
+                <span className="text-sm">points upon completion</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Overview Section */}
-        <div className=" border-border pb-2 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-3 rounded bg-primary/80">
-              <MapPin className="h-4 w-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-medium">Location</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {event.location}
+              <p className="text-xs text-muted-foreground mt-1">
+                Points will be added to your account after attending the event
               </p>
             </div>
           </div>
         </div>
 
-        {/* Date & Time Section */}
-        <div className=" border-border pb-2 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-3 rounded bg-primary/80">
-              <Calendar className="h-4 w-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-medium">Date & Time</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {event.date}, {event.time}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Points Section */}
-        <div className=" border-border pb-2 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-3 rounded bg-primary/80">
-              <Award className="h-4 w-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-medium">Reward</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Earn {event.points} points upon completion of this event
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Fixed Bottom Button */}
-        <div className="mt-8 mb-4">
+        {/* Action buttons */}
+        <div className="flex gap-3">
           <Button
-            className="w-full h-12 rounded-lg text-base font-medium"
-            onClick={handleRegister}
-            disabled={isRegistered}
+            variant="outline"
+            size="icon"
+            className="flex-1 h-10"
+            onClick={toggleSave}
           >
-            {isRegistered ? "Already Registered" : "Register Now"}
+            <Heart
+              className={cn(
+                "h-5 w-5",
+                isSaved && "fill-[#7CBA01] text-[#7CBA01]",
+              )}
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="flex-1 h-10"
+            onClick={addToCalendar}
+          >
+            <CalendarPlus className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="flex-1 h-10"
+            onClick={shareEvent}
+          >
+            <Share2 className="h-5 w-5" />
           </Button>
         </div>
       </div>
+
+      {/* Fixed bottom button */}
+      <Button
+        className="w-full h-12 rounded-lg text-base font-medium bg-primary pt-10 "
+        onClick={handleRegister}
+        disabled={isRegistered}
+      >
+        {isRegistered ? "Already Registered" : "Register Now"}
+      </Button>
     </div>
   );
 }

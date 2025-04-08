@@ -25,6 +25,7 @@ import { avatarOptions } from "./_components/avatars";
 import Rewards from "./_components/rewards";
 import Events from "./_components/events";
 import MoodTracker from "./_components/mood-tracker";
+import { AvatarFallback } from "@radix-ui/react-avatar";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -57,37 +58,27 @@ export default function ProfilePage() {
 
   if (isLoading) return <Loading title="profile" />;
 
-  // Find the avatar component based on the user's avatar_id
-  const avatarId = user.user_metadata?.avatar_id || "mindfulness";
-  const avatarOption = avatarOptions.find((option) => option.id === avatarId);
-  const UserAvatar = avatarOption
-    ? avatarOption.component
-    : avatarOptions[0].component;
-
   return (
     <>
       {/* Profile Header */}
-      <div className="flex items-start gap-3 !mb-8">
-        <Avatar className="h-20 w-20  rounded-xl overflow-hidden">
-          <UserAvatar />
+      <div className="flex items-center flex-col justify-center gap-3 !mb-8 pt-8 ">
+        <Avatar className="bg-border h-20 w-20">
+          <AvatarFallback className="text-center text-2xl w-full h-full flex items-center justify-center">
+            {user.user_metadata?.first_name[0] || ""}
+            {user.user_metadata?.last_name[0] || ""}
+          </AvatarFallback>
         </Avatar>
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-1 items-center flex flex-col">
           <div className="flex justify-between items-center">
             <h1 className="text-sm font-semibold">
               {user.user_metadata?.first_name || ""}{" "}
               {user.user_metadata?.last_name || ""}
             </h1>
-            <Badge className="text-xs rounded-sm">Level 5</Badge>
           </div>
-          <div className="mt-1 space-y-1">
+          <div className="space-y-1">
             <div className="text-muted-foreground text-sm flex gap-1">
               <p>Streak: 24</p> • <p>Points: 24</p>
             </div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Progress to Level 6</span>
-              <span>750 / 1000</span>
-            </div>
-            <Progress value={75} className="h-1.5" />
           </div>
         </div>
       </div>
@@ -153,7 +144,7 @@ function NavItem({
   return (
     <button
       className={`flex gap-3 items-center justify-start p-2 px-4 rounded-lg transition-colors ${
-        isActive ? "bg-primary/10 text-primary" : "hover:bg-muted bg-muted/30"
+        isActive ? "bg-muted" : "hover:bg-muted bg-muted/30"
       }`}
       onClick={onClick}
     >

@@ -3,6 +3,7 @@ import {
   createSearchParamsCache,
   parseAsArrayOf,
   parseAsInteger,
+  parseAsIsoDateTime,
   parseAsString,
   parseAsTimestamp,
 } from "nuqs/server";
@@ -11,7 +12,7 @@ import { z } from "zod";
 export const moodLogsParams = {
   id: parseAsString,
   user_id: parseAsString,
-  created_at: parseAsTimestamp,
+  created_at: parseAsIsoDateTime,
 };
 
 export const insightsParams = {

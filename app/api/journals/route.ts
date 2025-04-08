@@ -2,12 +2,8 @@ export const dynamic = "force-static";
 import { getErrorMessage } from "@/lib/utils";
 import { moodLogsParams } from "@/lib/validators";
 import { db } from "@/services/database";
-import mood_logs, {
-  moodLogSchema,
-} from "@/services/database/schema/mood/mood-logs.schema";
-import { generateInsights } from "@/services/database/utils/insights";
-import { calculateStreak } from "@/services/database/utils/points";
-import { and, eq } from "drizzle-orm";
+import mood_logs from "@/services/database/schema/mood/mood-logs.schema";
+import { and, desc, eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { createLoader } from "nuqs/server";
 
@@ -15,59 +11,66 @@ export async function GET(request: NextRequest) {
   try {
     const loadSearchParams = createLoader(moodLogsParams);
     const { id, user_id, created_at } = loadSearchParams(request);
-
     const where = and(
       id ? eq(mood_logs.id, id) : undefined,
       user_id ? eq(mood_logs.user_id, user_id) : undefined,
       created_at ? eq(mood_logs.created_at, created_at) : undefined,
     );
-
-    const entries = await db.select().from(mood_logs).where(where);
+    const entries = await db
+      .select()
+      .from(mood_logs)
+      .where(where)
+      .orderBy(desc(mood_logs.created_at));
     return Response.json(entries, { status: 200 });
   } catch (error) {
     return Response.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
-    const data = moodLogSchema.parse(body);
+    const data = await request.json();
+    let result;
 
-    const existingEntry = await db
-      .select()
-      .from(mood_logs)
-      .where(
-        and(
-          eq(mood_logs.user_id, data.user_id),
-          eq(mood_logs.created_at, data.created_at),
-        ),
-      )
-      .limit(1);
+    console.log(data);
 
-    if (existingEntry.length > 0) {
-      return new Response(
-        JSON.stringify({ error: "An entry already exists for this date" }),
-        {
-          status: 409,
-        },
-      );
+    if (data.id) {
+      result = await db
+        .update(mood_logs)
+        .set({
+          mood_score: data.mood_score,
+          sleep_hours: data.sleep_hours,
+          energy_level: data.energy_level,
+          entry_note: data.entry_note,
+          gratitude_note: data.gratitude_note,
+          challenge_note: data.challenge_note,
+          activities: data.activities,
+          updated_at: new Date(),
+        })
+        .where(eq(mood_logs.id, data.id))
+        .returning();
+
+      if (result.length === 0) {
+        return Response.json({ error: "Log not found" }, { status: 404 });
+      }
+    } else {
+      result = await db
+        .insert(mood_logs)
+        .values({
+          user_id: data.user_id,
+          mood_score: data.mood_score,
+          sleep_hours: data.sleep_hours,
+          energy_level: data.energy_level,
+          entry_note: data.entry_note,
+          gratitude_note: data.gratitude_note,
+          challenge_note: data.challenge_note,
+          activities: data.activities,
+        })
+        .returning();
     }
 
-    const [entry] = await db.insert(mood_logs).values(data).returning();
-    const streak = await calculateStreak(data.user_id);
-    await generateInsights(data.user_id);
-    return Response.json(
-      { entry, streak },
-      {
-        status: 200,
-      },
-    );
+    return Response.json(result[0], { status: 200 });
   } catch (error) {
-    console.error("Error creating mood log entry:", getErrorMessage(error));
-    return Response.json(
-      { error: "Failed to create mood log entry" },
-      { status: 500 },
-    );
+    return Response.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

@@ -21,14 +21,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
-import { cn, getAuthenticatedUserFromClient, getMoodColor } from "@/lib/utils";
+import { cn, getMoodColor } from "@/lib/utils";
 import {
-  MoodLog,
   moodLogSchema,
   NewMoodLog,
 } from "@/services/database/schema/mood/mood-logs.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   Frown,
   Meh,
@@ -45,35 +44,72 @@ import {
   Utensils,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
-import { getMoodLogs } from "@/services/queries/mood-logs";
 import { toast } from "sonner";
 import Loading from "@/app/_components/loading";
 import { useJournals } from "@/lib/hooks/useJournals";
+import { Input } from "@/components/ui/input";
 
 type Props = {};
 
 export default function Journal(props: Props) {
   const { data, isLoading } = useJournals();
 
-  const form = useForm<z.infer<typeof moodLogSchema>>({
-    resolver: zodResolver(moodLogSchema),
-    defaultValues: async () => {
-      const supabase = createClient();
-      const { data } = await supabase.auth.getUser();
-      return {
-        user_id: data.user!.id, // users object will be there becasue page is protected
-        mood_score: 5,
-        sleep_hours: 7,
-        energy_level: 5,
-        activities: [],
-      };
-    },
+  // make sure journals are sorted in ascending order
+  const todaysJournal = data ? data[0] : null;
+  const [defaultValues, setDefaultValues] = useState({
+    id: "",
+    user_id: "",
+    mood_score: 5,
+    sleep_hours: 7,
+    energy_level: 5,
+    entry_note: "",
+    gratitude_note: "",
+    challenge_note: "",
+    activities: [],
   });
 
+  const form = useForm<z.infer<typeof moodLogSchema>>({
+    resolver: zodResolver(moodLogSchema),
+    defaultValues: defaultValues,
+  });
+
+  useEffect(() => {
+    async function loadDefaultValues() {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+
+        setDefaultValues({
+          id: todaysJournal?.id ?? "",
+          user_id: data.user?.id || "",
+          mood_score: todaysJournal?.mood_score ?? 5,
+          sleep_hours: todaysJournal?.sleep_hours ?? 7,
+          energy_level: todaysJournal?.energy_level ?? 5,
+          entry_note: todaysJournal?.entry_note ?? "", // Fixed: was using energy_level here
+          gratitude_note: todaysJournal?.gratitude_note ?? "",
+          challenge_note: todaysJournal?.challenge_note ?? "",
+          activities: todaysJournal?.activities ?? [],
+        });
+
+        todaysJournal?.activities && setActivities(todaysJournal.activities);
+      } catch (error) {
+        console.error("Error loading default values:", error);
+      }
+    }
+
+    loadDefaultValues();
+  }, [todaysJournal]);
+
+  // Reset form when default values change
+  useEffect(() => {
+    if (!isLoading) {
+      form.reset(defaultValues);
+    }
+  }, [defaultValues, form, isLoading]);
   const mutation = useMutation({
     mutationFn: async (newMoodLog: NewMoodLog) => {
       try {
@@ -83,7 +119,7 @@ export default function Journal(props: Props) {
         console.log(error);
       }
     },
-    onSuccess(data) {
+    onSuccess() {
       toast.success("Journal entry has been recorded");
     },
     onError(error) {
@@ -93,8 +129,7 @@ export default function Journal(props: Props) {
   });
 
   function onSubmit(values: z.infer<typeof moodLogSchema>) {
-    console.log(values);
-    mutation.mutate({ ...values, activities });
+    return mutation.mutate({ ...values, activities });
   }
 
   const [promptIndex, setPromptIndex] = useState<number>(0);
@@ -108,13 +143,15 @@ export default function Journal(props: Props) {
 
   return (
     <>
-      <Alert className="border-primary">
-        <AlertTitle className="text-sm">Today's entry completed</AlertTitle>
-        <AlertDescription className="text-xs">
-          You have already entered today's entry. If you want to edit it just
-          adjust the information below.
-        </AlertDescription>
-      </Alert>
+      {todaysJournal && (
+        <Alert className="border-primary">
+          <AlertTitle className="text-sm">Today's entry completed</AlertTitle>
+          <AlertDescription className="text-xs">
+            You have already entered today's entry. If you want to edit it just
+            adjust the information below.
+          </AlertDescription>
+        </Alert>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card className="bg-border border-none ">
@@ -210,6 +247,19 @@ export default function Journal(props: Props) {
               </div>
             </CardContent>
           </Card>
+
+          <FormField
+            control={form.control}
+            name="id"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input {...field} type="hidden" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <Card className="boder-none bg-border">
             <CardHeader className="pb-2">

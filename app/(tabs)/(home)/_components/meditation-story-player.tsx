@@ -18,26 +18,23 @@ export function MeditationStoryPlayer({
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [hasEnded, setHasEnded] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const currentStep = meditation.steps[currentStepIndex];
 
-  // Calculate the width for each progress segment
   const segmentWidth = 100 / meditation.steps.length;
 
-  // Handle step progression
   useEffect(() => {
-    if (!currentStep || isPaused) return;
+    if (!currentStep || isPaused || hasEnded) return;
 
-    // Clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
 
-    const stepDuration = currentStep.duration * 1000; // convert to ms
+    const stepDuration = currentStep.duration * 1000;
     const startTime = Date.now();
     const initialProgress = currentStepIndex * segmentWidth;
 
-    // Set up interval to update progress
     intervalRef.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const stepProgress = Math.min(elapsed / stepDuration, 1);
@@ -45,18 +42,15 @@ export function MeditationStoryPlayer({
 
       setProgress(totalProgress);
 
-      // Move to next step when current step is complete
       if (elapsed >= stepDuration) {
         if (currentStepIndex < meditation.steps.length - 1) {
-          setCurrentStepIndex(currentStepIndex + 1);
+          setCurrentStepIndex((prev) => prev + 1);
         } else {
-          // End of meditation
           clearInterval(intervalRef.current!);
-          // Wait a moment before redirecting
-          setTimeout(() => router.push("/meditations"), 1000);
+          setHasEnded(true);
         }
       }
-    }, 50); // Update frequently for smooth progress
+    }, 50);
 
     return () => {
       if (intervalRef.current) {
@@ -69,41 +63,45 @@ export function MeditationStoryPlayer({
     isPaused,
     segmentWidth,
     meditation.steps.length,
-    router,
+    hasEnded,
   ]);
 
-  // Handle tap to navigate
+  useEffect(() => {
+    if (hasEnded) {
+      const timeout = setTimeout(() => {
+        router.push("/");
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [hasEnded, router]);
+
   const handleTap = (direction: "left" | "right") => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
 
     if (direction === "left" && currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
-    } else if (
-      direction === "right" &&
-      currentStepIndex < meditation.steps.length - 1
-    ) {
-      setCurrentStepIndex(currentStepIndex + 1);
+      setCurrentStepIndex((prev) => prev - 1);
+    } else if (direction === "right") {
+      if (currentStepIndex < meditation.steps.length - 1) {
+        setCurrentStepIndex((prev) => prev + 1);
+      } else {
+        setHasEnded(true); // <-- Ensure end triggers if user clicks to last
+      }
     }
   };
-
-  // Toggle pause/play
   const togglePause = () => {
-    setIsPaused(!isPaused);
+    setIsPaused((prev) => !prev);
   };
 
-  // Toggle mute
   const toggleMute = () => {
-    setIsMuted(!isMuted);
+    setIsMuted((prev) => !prev);
   };
 
-  // Close meditation
   const handleClose = () => {
     router.push("/");
   };
 
-  // Get background style based on current step
   const getBackgroundStyle = () => {
     if (currentStep.backgroundImage) {
       return {
@@ -122,10 +120,11 @@ export function MeditationStoryPlayer({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col"
+      className="fixed inset-0 z-30 flex flex-col"
       style={getBackgroundStyle()}
+      onClick={(e) => e.stopPropagation()}
     >
-      {/* Progress bar */}
+      {/* Progress bar and header */}
       <div className="absolute top-0 left-0 right-0 p-4 z-10">
         <div className="flex space-x-1 mb-4">
           {meditation.steps.map((step, index) => (
@@ -153,11 +152,15 @@ export function MeditationStoryPlayer({
             <h3 className="font-medium text-sm">{meditation.title}</h3>
             <p className="text-xs text-white/70">By {meditation.author}</p>
           </div>
+
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20"
-            onClick={handleClose}
+            className="text-white hover:bg-white/20 z-50"
+            onClick={(e) => {
+              e.stopPropagation(); // <- prevent tap areas from hijacking
+              handleClose();
+            }}
           >
             <X className="h-5 w-5" />
           </Button>
@@ -165,12 +168,17 @@ export function MeditationStoryPlayer({
       </div>
 
       {/* Tap areas for navigation */}
-      <div className="flex-1 flex">
-        <div className="w-1/3 h-full" onClick={() => handleTap("left")} />
-        <div className="w-1/3 h-full" />
-        <div className="w-1/3 h-full" onClick={() => handleTap("right")} />
-      </div>
 
+      <div
+        className="w-1/2 min-h-screen z-10"
+        onClick={() => handleTap("left")}
+        style={{ pointerEvents: "auto" }}
+      />
+      <div
+        className="w-1/2 min-h-screen z-10"
+        onClick={() => handleTap("right")}
+        style={{ pointerEvents: "auto" }}
+      />
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-start justify-center p-8 text-center">
         {currentStep.type === "breathing" && (

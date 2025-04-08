@@ -1,4 +1,3 @@
-import { GetInsightsSchema } from "@/lib/validators";
 import axios from "axios";
 
 // Get all insights for a user

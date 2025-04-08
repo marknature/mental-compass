@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Check, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -39,7 +39,11 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
+  const pathname = usePathname();
   const params = useSearchParams();
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState<
+    boolean | null
+  >(null);
 
   const [errors, setErrors] = useState<AuthError | null>(null);
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -61,7 +65,25 @@ export function LoginForm({
       router.push("/error");
     }
 
-    router.push("/");
+    const onboardingStatus = localStorage.getItem("onboardingComplete");
+    setIsOnboardingComplete(onboardingStatus === "true");
+
+    // If onboarding is not complete and we're not already on the onboarding page,
+    // redirect to onboarding
+    if (
+      onboardingStatus !== "true" &&
+      pathname !== "/onboarding" &&
+      isOnboardingComplete !== null
+    ) {
+      return router.push("/onboarding");
+    }
+
+    // Don't render anything until we've checked onboarding status
+    if (isOnboardingComplete === null && pathname !== "/onboarding") {
+      return null;
+    }
+
+    return router.push("/");
   };
 
   useEffect(() => {

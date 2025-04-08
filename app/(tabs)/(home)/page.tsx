@@ -11,7 +11,7 @@ import EventCard from "./_components/events-card";
 import { MeditationList } from "./_components/meditation-list";
 import { MoodCalendar } from "./_components/mood-calender";
 import { useJournals } from "@/lib/hooks/useJournals";
-import { Flame } from "lucide-react";
+import { Calendar, BarChart2, BookOpen } from "lucide-react";
 
 export default function Home() {
   const { data: events = [], isLoading: eventsIsLoading } = useEvents({
@@ -21,56 +21,57 @@ export default function Home() {
   const { data: user, isLoading: userIsLoading } = useUser();
   const { data: journals = [], isLoading: journalsIsLoading } = useJournals();
 
-  const streakCount = 5;
-
   if (eventsIsLoading || userIsLoading || journalsIsLoading)
     return <Loading title="home" />;
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
+    <div className="space-y-3">
+      <header className="flex items-center mb-6   rounded-lg">
         <div>
-          <h1 className="text-foreground">{getGreeting()}</h1>
+          <h1 className="text-foreground font-semibold text-md">
+            {getGreeting()}
+          </h1>
           <h3 className="font-semibold text-sm text-muted-foreground">
             {user.user_metadata?.first_name || ""}{" "}
             {user.user_metadata?.last_name || ""}
           </h3>
         </div>
-        <div className="flex justify-center items-center gap-2">
-          <Flame className="h-5 w-5 text-primary animate-pulse" />
-          <div className="font-semibold text-xs flex flex-col items-center justify-center">
-            {streakCount} day streak!
-          </div>
-        </div>
       </header>
 
       {/* Quick Actions */}
-      <section className="py-2">
+      <section>
         <div className="mb-4">
-          <h2 className="text-base mb-1 font-semibold">Quick Actions</h2>
+          <h2 className="text-base mb-1 font-semibold flex items-center">
+            <BarChart2 className="h-5 w-5 mr-2 text-primary" />
+            Quick Actions
+          </h2>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <Card className="bg-primary/80 border-none">
+          <Card className="bg-primary border-none shadow-md transition-all hover:shadow-lg hover:scale-105">
             <Link
               href="/journals/"
               className="text-base/1 gap-1 items-center text-center"
             >
-              <CardContent className="p-3 flex flex-col items-center justify-center">
-                <h3 className="font-medium">Journal Entry</h3>
-                <p className="text-xs text-foreground/80 mb-2">
+              <CardContent className="p-4 flex flex-col items-center justify-center">
+                <BookOpen className="h-5 w-5 text-primary-foreground mb-2" />
+                <h3 className="font-medium text-primary-foreground">
+                  Journal Entry
+                </h3>
+                <p className="text-xs text-primary-foreground/90 mt-1">
                   Track your mood
                 </p>
               </CardContent>
             </Link>
           </Card>
-          <Card className="border-none bg-border">
+          <Card className="border-none bg-accent shadow-md transition-all hover:shadow-lg hover:scale-105">
             <Link
               href="/events/"
               className="text-base/1 flex flex-col gap-1 items-center text-center"
             >
-              <CardContent className="p-3 ">
+              <CardContent className="p-4">
+                <Calendar className="h-5 w-5 text-accent-foreground mb-2 mx-auto" />
                 <h3 className="font-medium">Events</h3>
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="text-xs text-muted-foreground mt-1">
                   Join activities
                 </p>
               </CardContent>
@@ -79,19 +80,12 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <h1 className=" font-medium">Mood Calender</h1>
-          <p className="text-sm text-muted-foreground">
-            Track your mood over the past weeks
-          </p>
-        </div>
-        <MoodCalendar data={journals} />
-      </div>
-
-      <section className="px-0 py-6">
-        <div className="space-y-1 mb-3">
-          <h1 className=" font-medium">Guided Meditations</h1>
+      <section className="px-0 py-4 overflow-x-hidden">
+        <div className="space-y-1 mb-4">
+          <h1 className="font-medium flex items-center">
+            <BookOpen className="h-5 w-5 mr-2 text-primary" />
+            Guided Meditations
+          </h1>
           <p className="text-sm text-muted-foreground">
             Start your day right with some meditations
           </p>
@@ -99,30 +93,31 @@ export default function Home() {
         <MeditationList meditations={guidedMeditations} />
       </section>
 
-      {/* Crisis Support */}
-      <section className="space-y-4">
+      <div className="space-y-4 ">
         <div className="space-y-1">
-          <h1 className="font-medium">Crisis Support Available</h1>
+          <h1 className="font-medium flex items-center">
+            <Calendar className="h-5 w-5 mr-2 text-primary" />
+            Mood Calendar
+          </h1>
           <p className="text-sm text-muted-foreground">
-            If you're experiencing a mental health emergency, immediate support
-            is available.
+            Track your mood over the past weeks
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Button size="lg" asChild>
-            <a href="tel:+1234567890">Call</a>
-          </Button>
-          <Button size="lg" asChild>
-            <a href="mailto:support@example.com">Email</a>
-          </Button>
-        </div>
-      </section>
+        <MoodCalendar data={journals} />
+      </div>
 
       {/* Upcoming Events */}
-      <section className="py-6">
+      <section className="py-4 ">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Upcoming Events</h2>
-          <Button asChild variant="ghost" size="sm">
+          <h2 className="text-lg font-semibold flex items-center">
+            Upcoming Events
+          </h2>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="rounded-full shadow-sm hover:shadow-md"
+          >
             <Link href="/events">View all</Link>
           </Button>
         </div>
@@ -133,7 +128,7 @@ export default function Home() {
               <EventCard key={index} event={event} />
             ))
           ) : (
-            <Card className="bg-muted/50">
+            <Card className="bg-muted/50 border border-border">
               <CardContent className="p-4 text-center">
                 <p className="text-muted-foreground">
                   No upcoming events found

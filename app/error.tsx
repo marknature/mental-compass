@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import {
   AlertTriangle,
-  Home,
   RotateCcw,
   Send,
   Bug,
@@ -37,7 +36,6 @@ export default function ErrorPage({
   reset,
   statusCode,
 }: ErrorPageProps) {
-  const router = useRouter();
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [reportData, setReportData] = useState({
@@ -72,7 +70,7 @@ export default function ErrorPage({
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+    <div className="flex flex-col items-center justify-center p-6 text-center">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -83,27 +81,19 @@ export default function ErrorPage({
           <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
             <AlertTriangle className="h-5 w-5 " />
           </div>
-          <h1 className="text-xl font-bold mb-2">Oops! Something went wrong</h1>
+          <h1 className="text-xl font-bold mb-2">Something went wrong</h1>
           <p className="text-muted-foreground mb-1">
             We encountered an unexpected error
           </p>
-          <p className="text-xs text-muted-foreground mb-6">
-            Error Code: {error?.digest || errorCode}
-          </p>
-
-          <div className="bg-muted/10 p-4 rounded-lg mb-2 text-left border border-dashed">
-            <p className="text-sm font-mono break-words">{errorMessage}</p>
-          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 ">
           <Button
             variant="default"
-            className="w-full bg-primary h-14"
+            className="w-full bg-primary h-14 "
             size={"lg"}
             onClick={() => setIsReportDialogOpen(true)}
           >
-            <Bug className="mr-2 h-4 w-4" />
             Report This Issue
           </Button>
 
@@ -114,7 +104,6 @@ export default function ErrorPage({
               size={"lg"}
               onClick={reset}
             >
-              <RotateCcw className="mr-2 h-4 w-4" />
               Try Again
             </Button>
           )}

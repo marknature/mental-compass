@@ -34,7 +34,7 @@ export default function PageHeader({}: Props) {
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-background py-2">
+    <div className="sticky top-0 z-50 bg-background py-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button

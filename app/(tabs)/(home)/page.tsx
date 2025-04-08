@@ -11,7 +11,7 @@ import EventCard from "./_components/events-card";
 import { MeditationList } from "./_components/meditation-list";
 import { MoodCalendar } from "./_components/mood-calender";
 import { useJournals } from "@/lib/hooks/useJournals";
-import { Calendar, BarChart2, BookOpen } from "lucide-react";
+import { Calendar, BarChart2, BookOpen, BookA, Book } from "lucide-react";
 
 export default function Home() {
   const { data: events = [], isLoading: eventsIsLoading } = useEvents({
@@ -25,7 +25,7 @@ export default function Home() {
     return <Loading title="home" />;
 
   return (
-    <div className="space-y-3">
+    <>
       <header className="flex items-center mb-6   rounded-lg">
         <div>
           <h1 className="text-foreground font-semibold text-md">
@@ -42,7 +42,6 @@ export default function Home() {
       <section>
         <div className="mb-4">
           <h2 className="text-base mb-1 font-semibold flex items-center">
-            <BarChart2 className="h-5 w-5 mr-2 text-primary" />
             Quick Actions
           </h2>
         </div>
@@ -53,7 +52,7 @@ export default function Home() {
               className="text-base/1 gap-1 items-center text-center"
             >
               <CardContent className="p-4 flex flex-col items-center justify-center">
-                <BookOpen className="h-5 w-5 text-primary-foreground mb-2" />
+                <Book className="h-5 w-5 text-accent-foreground mb-2 mx-auto" />
                 <h3 className="font-medium text-primary-foreground">
                   Journal Entry
                 </h3>
@@ -82,10 +81,7 @@ export default function Home() {
 
       <section className="px-0 py-4 overflow-x-hidden">
         <div className="space-y-1 mb-4">
-          <h1 className="font-medium flex items-center">
-            <BookOpen className="h-5 w-5 mr-2 text-primary" />
-            Guided Meditations
-          </h1>
+          <h1 className="font-medium flex items-center">Guided Meditations</h1>
           <p className="text-sm text-muted-foreground">
             Start your day right with some meditations
           </p>
@@ -95,10 +91,7 @@ export default function Home() {
 
       <div className="space-y-4 ">
         <div className="space-y-1">
-          <h1 className="font-medium flex items-center">
-            <Calendar className="h-5 w-5 mr-2 text-primary" />
-            Mood Calendar
-          </h1>
+          <h1 className="font-medium flex items-center">Mood Calendar</h1>
           <p className="text-sm text-muted-foreground">
             Track your mood over the past weeks
           </p>
@@ -138,7 +131,7 @@ export default function Home() {
           )}
         </div>
       </section>
-    </div>
+    </>
   );
 }
 

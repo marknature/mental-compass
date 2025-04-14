@@ -42,9 +42,6 @@ export function MoodCalendar({ data, className }: MoodCalendarProps) {
 
   return (
     <div className={cn("bg-border rounded-xl p-3 py-4 ", className)}>
-      <h1 className="text-sm text-muted-foreground">
-        Showing moods for {monthName}
-      </h1>
       <div className="grid grid-cols-7 gap-2 ">
         {/* Day names */}
         {["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"].map((day, i) => (

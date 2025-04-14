@@ -79,17 +79,18 @@ export function MeditationStoryPlayer({
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-
+    console.log(direction, currentStepIndex);
     if (direction === "left" && currentStepIndex > 0) {
       setCurrentStepIndex((prev) => prev - 1);
     } else if (direction === "right") {
       if (currentStepIndex < meditation.steps.length - 1) {
         setCurrentStepIndex((prev) => prev + 1);
       } else {
-        setHasEnded(true); // <-- Ensure end triggers if user clicks to last
+        setHasEnded(true);
       }
     }
   };
+
   const togglePause = () => {
     setIsPaused((prev) => !prev);
   };
@@ -124,8 +125,8 @@ export function MeditationStoryPlayer({
       style={getBackgroundStyle()}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Progress bar and header */}
-      <div className="absolute top-0 left-0 right-0 p-4 z-10">
+      {/* Progress bar and header (z-index increased to ensure it's on top of tap areas) */}
+      <div className="absolute top-0 left-0 right-0 p-4 z-40">
         <div className="flex space-x-1 mb-4">
           {meditation.steps.map((step, index) => (
             <div
@@ -156,9 +157,9 @@ export function MeditationStoryPlayer({
           <Button
             variant="ghost"
             size="icon"
-            className="text-white hover:bg-white/20 z-50"
+            className="text-white hover:bg-white/20"
             onClick={(e) => {
-              e.stopPropagation(); // <- prevent tap areas from hijacking
+              e.stopPropagation(); // prevents tap areas from hijacking
               handleClose();
             }}
           >
@@ -168,17 +169,23 @@ export function MeditationStoryPlayer({
       </div>
 
       {/* Tap areas for navigation */}
+      <div className="absolute inset-0 z-20 flex">
+        <div
+          className="w-1/2 h-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleTap("left");
+          }}
+        />
+        <div
+          className="w-1/2 h-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleTap("right");
+          }}
+        />
+      </div>
 
-      <div
-        className="w-1/2 min-h-screen z-10"
-        onClick={() => handleTap("left")}
-        style={{ pointerEvents: "auto" }}
-      />
-      <div
-        className="w-1/2 min-h-screen z-10"
-        onClick={() => handleTap("right")}
-        style={{ pointerEvents: "auto" }}
-      />
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-start justify-center p-8 text-center">
         {currentStep.type === "breathing" && (

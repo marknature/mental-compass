@@ -35,6 +35,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  images: {
+    domains: ["images.unsplash.com", "aunews.africau.edu", "i.scdn.co"],
+  },
 };
 
 export default nextConfig;

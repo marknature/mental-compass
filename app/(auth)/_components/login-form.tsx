@@ -57,7 +57,7 @@ export function LoginForm({
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword(data);
-    console.log(error);
+    console.log(error, form.formState.errors);
 
     setErrors(error);
 
@@ -73,20 +73,21 @@ export function LoginForm({
     if (
       onboardingStatus !== "true" &&
       pathname !== "/onboarding" &&
-      isOnboardingComplete !== null
+      onboardingStatus !== null
     ) {
+      console.log("navigating to onboarding");
       return router.push("/onboarding");
     }
 
     // Don't render anything until we've checked onboarding status
-    if (isOnboardingComplete === null && pathname !== "/onboarding") {
+    if (!onboardingStatus && pathname !== "/onboarding") {
       return null;
     }
-
     return router.push("/");
   };
 
   useEffect(() => {
+    router.prefetch("/");
     if (params.get("confirmEmail")) {
       const notification = toast.success("Sign up successful", {
         description: "Please check your emails to verify your account",

@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,12 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, getMoodColor } from "@/lib/utils";
-import {
-  moodLogSchema,
-  NewMoodLog,
-} from "@/services/database/schema/mood/mood-logs.schema";
+import { moodLogSchema } from "@/services/database/schema/mood/mood-logs.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import {
   Frown,
   Meh,
@@ -50,17 +45,21 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import Loading from "@/app/_components/loading";
-import { useJournals } from "@/lib/hooks/useJournals";
+import { useCreateOrUpdateMoodLog, useJournals } from "@/lib/hooks/useJournals";
 import { Input } from "@/components/ui/input";
+import { useUser } from "@/lib/hooks/useUsers";
 
-type Props = {};
+type MoodLogFormValues = z.infer<typeof moodLogSchema> & {
+  created_at?: Date;
+};
 
-export default function Journal(props: Props) {
+export default function Journal() {
+  const { data: user, isLoading: isUserLoading } = useUser();
   const { data, isLoading } = useJournals();
+  const [promptIndex, setPromptIndex] = useState<number>(0);
+  const [activities, setActivities] = useState<string[]>([]);
 
-  // make sure journals are sorted in ascending order
-  const todaysJournal = data ? data[0] : null;
-  const [defaultValues, setDefaultValues] = useState({
+  const [defaultValues, setDefaultValues] = useState<MoodLogFormValues>({
     id: "",
     user_id: "",
     mood_score: 5,
@@ -70,9 +69,16 @@ export default function Journal(props: Props) {
     gratitude_note: "",
     challenge_note: "",
     activities: [],
+    created_at: new Date(),
   });
 
-  const form = useForm<z.infer<typeof moodLogSchema>>({
+  const today = new Date().toISOString().split("T")[0];
+  const todaysJournal =
+    data?.find((entry) => {
+      return entry.created_at && entry.created_at.split("T")[0] === today;
+    }) ?? null;
+
+  const form = useForm<MoodLogFormValues>({
     resolver: zodResolver(moodLogSchema),
     defaultValues: defaultValues,
   });
@@ -81,21 +87,29 @@ export default function Journal(props: Props) {
     async function loadDefaultValues() {
       try {
         const supabase = createClient();
-        const { data } = await supabase.auth.getUser();
+        const { data: userData } = await supabase.auth.getUser();
+
+        // Create a new Date object for today if there's no existing journal entry
+        const createdAt = todaysJournal?.created_at
+          ? new Date(todaysJournal.created_at)
+          : new Date();
 
         setDefaultValues({
           id: todaysJournal?.id ?? "",
-          user_id: data.user?.id || "",
+          user_id: userData.user?.id || "",
           mood_score: todaysJournal?.mood_score ?? 5,
           sleep_hours: todaysJournal?.sleep_hours ?? 7,
           energy_level: todaysJournal?.energy_level ?? 5,
-          entry_note: todaysJournal?.entry_note ?? "", // Fixed: was using energy_level here
+          entry_note: todaysJournal?.entry_note ?? "",
           gratitude_note: todaysJournal?.gratitude_note ?? "",
           challenge_note: todaysJournal?.challenge_note ?? "",
           activities: todaysJournal?.activities ?? [],
+          created_at: createdAt,
         });
 
-        todaysJournal?.activities && setActivities(todaysJournal.activities);
+        if (todaysJournal?.activities) {
+          setActivities(todaysJournal.activities);
+        }
       } catch (error) {
         console.error("Error loading default values:", error);
       }
@@ -110,34 +124,31 @@ export default function Journal(props: Props) {
       form.reset(defaultValues);
     }
   }, [defaultValues, form, isLoading]);
-  const mutation = useMutation({
-    mutationFn: async (newMoodLog: NewMoodLog) => {
-      try {
-        const response = await axios.post(`/api/journals`, newMoodLog);
-        console.log(response);
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    onSuccess() {
-      toast.success("Journal entry has been recorded");
-    },
-    onError(error) {
-      console.log(error);
-      toast.error("Journal entry has not been recorded");
-    },
-  });
 
-  function onSubmit(values: z.infer<typeof moodLogSchema>) {
-    return mutation.mutate({ ...values, activities });
-  }
-
-  const [promptIndex, setPromptIndex] = useState<number>(0);
-  const [activities, setActivities] = useState<string[]>([]);
+  const mutation = useCreateOrUpdateMoodLog();
 
   const nextPrompt = () => {
     setPromptIndex((promptIndex + 1) % journalPrompts.length);
   };
+
+  function onSubmit(values: MoodLogFormValues) {
+    // Ensure created_at is set for new entries
+    const submitValues = {
+      ...values,
+      activities,
+      created_at: values.created_at || new Date(),
+    };
+
+    return mutation.mutate(submitValues, {
+      onSuccess() {
+        toast.success("Journal entry has been recorded");
+      },
+      onError(error) {
+        console.error(error);
+        toast.error("Journal entry has not been recorded");
+      },
+    });
+  }
 
   if (isLoading) return <Loading title="Journal" />;
 
@@ -154,13 +165,13 @@ export default function Journal(props: Props) {
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card className="bg-border border-none ">
+          <Card className="bg-border border-none">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">
                 How are you feeling today?
               </CardTitle>
               <CardDescription>
-                Track your mood, sleep and actities today
+                Track your mood, sleep and activities today
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
@@ -207,7 +218,7 @@ export default function Journal(props: Props) {
             </CardContent>
           </Card>
 
-          <Card className=" border-none bg-border">
+          <Card className="border-none bg-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">
                 What did you do today?
@@ -226,7 +237,7 @@ export default function Journal(props: Props) {
                         activities.includes(activity.id) ? "default" : "outline"
                       }
                       className={cn(
-                        "w-full h-auto py-2 px-1 flex flex-col items-center gap-1 border-none bg-primary/15 ",
+                        "w-full h-auto py-2 px-1 flex flex-col items-center gap-1 border-none bg-primary/15",
                         activities.includes(activity.id) ? "bg-primary" : "",
                       )}
                       onClick={() => {
@@ -261,7 +272,7 @@ export default function Journal(props: Props) {
             )}
           />
 
-          <Card className="boder-none bg-border">
+          <Card className="bg-border border-none">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Track Your Wellness</CardTitle>
             </CardHeader>
@@ -331,7 +342,7 @@ export default function Journal(props: Props) {
           <Card className="border-none">
             <CardHeader className="pb-2 px-0 pt-0">
               <div className="flex justify-between items-center">
-                <CardTitle className="text-base ">Journal Entry</CardTitle>
+                <CardTitle className="text-base">Journal Entry</CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"

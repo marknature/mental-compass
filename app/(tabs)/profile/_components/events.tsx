@@ -1,10 +1,10 @@
+import EventCard from "@/app/_components/event-card";
 import Loading from "@/app/_components/loading";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEvents } from "@/lib/hooks/useEvents";
-import { CompactEventCard } from "../../events/page";
+import { useEventsQuery } from "@/lib/hooks/useEvents";
 
 export default function Events() {
-  const { data: events, isLoading } = useEvents({ limit: 5 });
+  const { data: events, isLoading } = useEventsQuery({ limit: 5 });
 
   return (
     <section className="py-6">
@@ -21,7 +21,7 @@ export default function Events() {
         <div className="space-y-3">
           {events && events.length > 0 ? (
             events.map((event, index) => (
-              <CompactEventCard key={index} event={event} />
+              <EventCard key={index} event={event} />
             ))
           ) : (
             <Card className="bg-muted/50">

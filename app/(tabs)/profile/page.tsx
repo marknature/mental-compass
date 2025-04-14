@@ -2,7 +2,6 @@
 
 import type React from "react";
 
-import { Progress } from "@/components/ui/progress";
 import {
   Award,
   Calendar,
@@ -15,13 +14,11 @@ import {
 
 import { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/hooks/useUsers";
 import Loading from "@/app/_components/loading";
 import EditProfile from "./_components/edit-profile";
-import { avatarOptions } from "./_components/avatars";
 import Rewards from "./_components/rewards";
 import Events from "./_components/events";
 import MoodTracker from "./_components/mood-tracker";
@@ -61,23 +58,28 @@ export default function ProfilePage() {
   return (
     <>
       {/* Profile Header */}
-      <div className="flex items-center flex-col justify-center gap-3 !mb-8 pt-8 ">
-        <Avatar className="bg-border h-20 w-20">
-          <AvatarFallback className="text-center text-2xl w-full h-full flex items-center justify-center">
+      <div className="flex gap-3 !mb-8 ">
+        <Avatar className="bg-border h-20 w-20 rounded-lg">
+          <AvatarFallback className="text-2xl w-full h-full flex items-center justify-center">
             {user.user_metadata?.first_name[0] || ""}
             {user.user_metadata?.last_name[0] || ""}
           </AvatarFallback>
         </Avatar>
-        <div className="flex-1 space-y-1 items-center flex flex-col">
-          <div className="flex justify-between items-center">
+        <div className="flex-1 space-y-1 justify-center flex flex-col">
+          <div className="flex justify-between">
             <h1 className="text-sm font-semibold">
               {user.user_metadata?.first_name || ""}{" "}
               {user.user_metadata?.last_name || ""}
             </h1>
           </div>
-          <div className="space-y-1">
-            <div className="text-muted-foreground text-sm flex gap-1">
-              <p>Streak: 24</p> • <p>Points: 24</p>
+          <div className="flex items-center mt-2">
+            <div className="flex items-center rounded-lg  py-1">
+              <span className="font-medium text-xs">Streak: </span>
+              <span className="text-xs ml-1 font-bold">24</span>
+            </div>
+            <div className="flex items-center  rounded-lg  py-1 ml-2">
+              <span className="font-medium text-xs">Points: </span>
+              <span className="text-xs ml-1 font-bold">24</span>
             </div>
           </div>
         </div>
@@ -148,7 +150,7 @@ function NavItem({
       }`}
       onClick={onClick}
     >
-      <div className="mb-1">{icon}</div>
+      <div className="mb-1 text-primary">{icon}</div>
       <span className="text-xs">{label}</span>
     </button>
   );

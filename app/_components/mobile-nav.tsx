@@ -8,10 +8,9 @@ export function BottomNavigation() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Don't show on detail pages
-  if (pathname.includes("/[") && pathname.split("/").length > 2) {
-    return null;
-  }
+  // Hide nav if the path has more than 2 segments (e.g. /events/123)
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length > 1) return null;
 
   const navItems = [
     {
@@ -33,7 +32,7 @@ export function BottomNavigation() {
       active: pathname.startsWith("/journals"),
     },
     {
-      name: "Resouces",
+      name: "Resources",
       href: "/resources",
       icon: Bookmark,
       active: pathname.startsWith("/resources"),
@@ -47,7 +46,7 @@ export function BottomNavigation() {
   ];
 
   return (
-    <div className="border-t fixed bottom-0 left-1/2 -translate-x-1/2 w-full  max-w-[390px] z-40 bg-background ">
+    <div className="border-t fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] z-40 bg-background">
       <div className="flex items-center h-16">
         {navItems.map((item) => (
           <button

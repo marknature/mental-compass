@@ -11,7 +11,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <main className="relative container mx-auto px-4 py-6 space-y-5 min-h-screen max-w-[390px] overflow-x-hidden  pb-20">
+      <main className="relative container mx-auto px-4 py-6 space-y-8 min-h-screen max-w-[390px] overflow-x-hidden  pb-20">
         <PageHeader />
         {children}
         <BottomNavigation />

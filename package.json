@@ -8,6 +8,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "seed:events": "npx tsx ./services/database/utils/seeders/events.seeder.ts",
+    "seed:articles": "npx tsx ./services/database/utils/seeders/articles.seeder.ts",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

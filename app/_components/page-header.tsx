@@ -1,55 +1,72 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
+import { ArrowLeft } from "lucide-react";
 
-type Props = {};
+const pageMeta: { pattern: RegExp; title: string; description: string }[] = [
+  {
+    pattern: /^\/events(\/\w+)?$/,
+    title: "Events",
+    description: "Explore upcoming events on campus",
+  },
+  {
+    pattern: /^\/events\/[\w-]+$/,
+    title: "Event Details",
+    description: "See the details for this event",
+  },
+  {
+    pattern: /^\/journals$/,
+    title: "Journal",
+    description: "Track your thoughts and emotions",
+  },
+  {
+    pattern: /^\/journals\/\w+$/,
+    title: "Journal Entry",
+    description: "Review or edit your entry",
+  },
+  {
+    pattern: /^\/resources$/,
+    title: "Resources",
+    description: "Curated articles, podcasts, and guides",
+  },
+  {
+    pattern: /^\/profile$/,
+    title: "Profile",
+    description: "Manage your account and preferences",
+  },
+];
 
-export default function PageHeader({}: Props) {
+export default function PageHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Define titles and descriptions for each page
-  const pageDetails: Record<string, { title: string; description: string }> = {
-    "/events": { title: "Events", description: "Explore upcoming events" },
-    "/journals": { title: "Journal", description: "Read and write journals" },
-    "/resources": {
-      title: "Resources",
-      description: "Find useful ariticles and podcasts",
-    },
-    "/profile": {
-      title: "Profile",
-      description: "View and edit your profile.",
-    },
-  };
+  // Hide header on the homepage
+  if (pathname === "/") return null;
 
-  // Hide header on home page
-  if (pathname === "/" || pathname === "/events/1") return null;
-
-  // Get current page details or fallback to default
-  const currentPage = pageDetails[pathname] || {
-    title: pathname.replace("/", ""),
-    description: `Viewing ${pathname.replace("/", "")} page`,
+  // Match the current route to a predefined pattern
+  const matchedMeta = pageMeta.find((meta) => meta.pattern.test(pathname)) || {
+    title: pathname.split("/").pop()?.replace(/-/g, " ") || "Page",
+    description: "You're viewing this page",
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-background py-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            className="p-2 rounded-lg hover:bg-border"
-            aria-label="Back"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="capitalize">{currentPage.title}</h1>
-            <p className="text-sm text-muted-foreground">
-              {currentPage.description}
-            </p>
-          </div>
+    <div className="sticky top-0 z-40 bg-background   shadow-sm">
+      <div className="flex items-center gap-3">
+        <button
+          className="p-2 rounded-md hover:bg-muted transition-colors"
+          onClick={() => router.back()}
+          aria-label="Go back"
+        >
+          <ArrowLeft className="h-5 w-5 text-foreground" />
+        </button>
+
+        <div className="flex flex-col">
+          <h1 className="text-lg font-semibold capitalize leading-tight">
+            {matchedMeta.title}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {matchedMeta.description}
+          </p>
         </div>
       </div>
     </div>

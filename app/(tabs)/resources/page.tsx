@@ -1,5 +1,6 @@
+"use client";
+
 import { FeaturedArticle } from "@/app/_components/featured-article";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,16 +9,65 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { mockArticles } from "@/lib/data/mock-articles";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Sliders } from "lucide-react";
 import Link from "next/link";
 import ArticleCard from "./_components/article-card";
 import ArticlesWrapper from "./_components/articles-wrapper";
 import PodcastCard from "./_components/podcast-list";
+import { useEffect, useState } from "react";
+import { useArticlesQuery } from "@/lib/hooks/useArticles";
+import Loading from "@/app/_components/loading";
+import { usePodcastsQuery } from "@/lib/hooks/usePodcasts";
+import EmptyDataList from "@/app/_components/empty-data-list";
+
+type Podcast = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  spotifyUrl: string;
+  publisher: string;
+};
 
 export default function Resources() {
-  const categories = ["calm", "happy", "sad", "peace", "stress", "anger"];
+  const { data = [], isLoading } = useArticlesQuery({});
+  const { data: podcasts = [], isLoading: podcastsLoading } =
+    usePodcastsQuery();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  if (isLoading || podcastsLoading) return <Loading title="Resouces" />;
+
+  const filteredArticles = data?.filter((article) => {
+    const matchesSearch =
+      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      article.summary.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === null || article.category.includes(selectedCategory);
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredPodcasts = podcasts.filter((podcast) => {
+    const matchesSearch =
+      podcast.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      podcast.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === null || podcast.category?.includes(selectedCategory);
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const nist = filteredArticles?.filter(
+    (article) => article.author === "National Institutes of Health",
+  );
+
+  const au = filteredArticles?.filter(
+    (article) => article.author === "Africa University",
+  );
 
   return (
     <>
@@ -26,103 +76,63 @@ export default function Resources() {
           type="search"
           placeholder="Search for resources..."
           className="w-full text-sm"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Button size={"icon"} variant={"outline"}>
-          <Sliders />
-        </Button>
       </div>
-      <FeaturedArticle />
-      <div className="mb-6">
-        <h2 className="capitalize text-base font-medium mb-3">
-          Search by category
-        </h2>
-        <div className="grid grid-cols-3 gap-2 mb-6">
-          {categories.map((category) => {
-            return (
-              <Button
-                variant="secondary"
-                className="rounded-md capitalize"
-                key={category}
-              >
-                {category}
-              </Button>
-            );
-          })}
-        </div>
-      </div>
+      {!searchTerm && <FeaturedArticle article={data[0]} />}
+
       <ArticlesWrapper
-        title="Happy"
-        description="Insights to maintaining happinnes"
+        title="Africa University"
+        description="Resources created by africa University"
       >
-        {mockArticles.map((article) => (
-          <Link href={`/resources/articles/${article.slug}`} key={article.slug}>
+        {au.map((article) => (
+          <Link href={article.url} key={article.url}>
             <ArticleCard article={article} />
           </Link>
         ))}
       </ArticlesWrapper>
+
+      <ArticlesWrapper
+        title="National institutes of health"
+        description="Turn discovery into health"
+      >
+        {nist?.length ? (
+          nist.map((article) => (
+            <Link href={article.url} key={article.url}>
+              <ArticleCard article={article} />
+            </Link>
+          ))
+        ) : (
+          <div className="flex justify-center items-center h-32 bg-muted/20 rounded-md">
+            <p className="text-muted-foreground text-sm">No articles found</p>
+          </div>
+        )}
+      </ArticlesWrapper>
+
       <Card className="bg-transparent space-y-4 max-w-4xl mx-auto border-none shadow-none">
         <CardHeader className="p-0">
           <CardTitle>Podcasts</CardTitle>
           <CardDescription>
-            Listen to some pocasts to brighten up your day
+            Listen to some podcasts to brighten up your day
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="space-y-4 w-full">
-            {mockPodcasts.map((podcast) => (
-              <PodcastCard podcast={podcast} key={podcast.id} />
-            ))}
+            {filteredPodcasts.length ? (
+              filteredPodcasts.map((podcast) => (
+                <PodcastCard podcast={podcast} key={podcast.id} />
+              ))
+            ) : (
+              <div className="flex justify-center items-center h-32 bg-muted/20 rounded-md">
+                <p className="text-muted-foreground text-sm">
+                  No podcasts found
+                </p>
+              </div>
+            )}
           </ScrollArea>
         </CardContent>
       </Card>
     </>
   );
 }
-
-// Mock data for podcasts
-const mockPodcasts = [
-  {
-    id: "pod1",
-    title: "Finding Inner Peace in a Busy World",
-    description: "Learn practical mindfulness techniques for daily life",
-    author: "Dr. Maya Singh",
-    authorAvatar: "/avatars/maya-singh.jpg",
-    duration: "24 min",
-    publishedDate: "Apr 2, 2025",
-    categories: ["meditation", "mindfulness", "calm"],
-    image: "/podcasts/inner-peace.jpg",
-  },
-  {
-    id: "pod2",
-    title: "Overcoming Anxiety Through Breathwork",
-    description: "Simple breathing exercises to reduce stress and anxiety",
-    author: "James Wilson",
-    authorAvatar: "/avatars/james-wilson.jpg",
-    duration: "18 min",
-    publishedDate: "Mar 28, 2025",
-    categories: ["anxiety", "breathing", "stress"],
-    image: "/podcasts/breathwork.jpg",
-  },
-  {
-    id: "pod3",
-    title: "The Science of Happiness",
-    description: "Research-backed strategies to increase your well-being",
-    author: "Dr. Lisa Chen",
-    authorAvatar: "/avatars/lisa-chen.jpg",
-    duration: "32 min",
-    publishedDate: "Mar 21, 2025",
-    categories: ["happiness", "science", "well-being"],
-    image: "/podcasts/happiness.jpg",
-  },
-  {
-    id: "pod4",
-    title: "Sleep Better Tonight",
-    description: "Practical tips for improving your sleep quality",
-    author: "Michael Torres",
-    authorAvatar: "/avatars/michael-torres.jpg",
-    duration: "26 min",
-    publishedDate: "Mar 15, 2025",
-    categories: ["sleep", "health", "relaxation"],
-    image: "/podcasts/sleep.jpg",
-  },
-];

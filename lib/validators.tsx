@@ -5,7 +5,6 @@ import {
   parseAsInteger,
   parseAsIsoDateTime,
   parseAsString,
-  parseAsTimestamp,
 } from "nuqs/server";
 import { z } from "zod";
 
@@ -21,6 +20,7 @@ export const insightsParams = {
 
 export const eventsParams = {
   user_id: parseAsString,
+  id: parseAsString,
   status: parseAsArrayOf(z.enum(events.status.enumValues)).withDefault([]),
   limit: parseAsInteger.withDefault(10),
 };

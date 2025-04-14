@@ -5,6 +5,7 @@ import {
   real,
   text,
   timestamp,
+  date,
 } from "drizzle-orm/pg-core";
 import users from "../users.schema";
 import { z } from "zod";
@@ -22,12 +23,12 @@ export const mood_logs = pgTable("mood_logs", {
   energy_level: integer(),
   activities: text().array(),
   points_earned: integer().default(0),
-  created_at: timestamp().defaultNow(),
+  created_at: date().defaultNow(),
   updated_at: timestamp().defaultNow(),
 });
 
 export const moodLogSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.string().optional(),
   user_id: z.string().uuid(),
   mood_score: z.coerce.number().int().min(1).max(10),
   entry_note: z.string().optional(),

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Compass } from "lucide-react"; // Import the icon you want
 
 const pageMeta: { pattern: RegExp; title: string; description: string }[] = [
   {
@@ -34,23 +34,28 @@ const pageMeta: { pattern: RegExp; title: string; description: string }[] = [
     title: "Profile",
     description: "Manage your account and preferences",
   },
+  {
+    pattern: /^\/chat$/,
+    title: "Compass Guide",
+    description: "Your mental wellness companion",
+  },
 ];
 
 export default function PageHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Hide header on the homepage
   if (pathname === "/") return null;
 
-  // Match the current route to a predefined pattern
   const matchedMeta = pageMeta.find((meta) => meta.pattern.test(pathname)) || {
     title: pathname.split("/").pop()?.replace(/-/g, " ") || "Page",
     description: "You're viewing this page",
   };
 
+  const isCompassGuide = /^\/chat$/.test(pathname);
+
   return (
-    <div className="sticky top-0 z-40 bg-background   shadow-sm">
+    <div className="fixed top-0 z-40 bg-background shadow-sm w-screen py-3">
       <div className="flex items-center gap-3">
         <button
           className="p-2 rounded-md hover:bg-muted transition-colors"
@@ -59,6 +64,10 @@ export default function PageHeader() {
         >
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
+
+        {isCompassGuide && (
+          <Compass className="h-7 w-7 text-primary" aria-hidden="true" />
+        )}
 
         <div className="flex flex-col">
           <h1 className="text-lg font-semibold capitalize leading-tight">

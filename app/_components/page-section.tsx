@@ -25,10 +25,7 @@ export default function PageSection({
 }: Props) {
   return (
     <Card
-      className={cn(
-        "bg-transparent max-w-4xl mx-auto border-none shadow-none",
-        className,
-      )}
+      className={cn("bg-transparent w-full border-none shadow-none", className)}
     >
       <CardHeader className="p-0 mb-3">
         <CardTitle>{title}</CardTitle>

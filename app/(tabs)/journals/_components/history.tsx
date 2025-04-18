@@ -7,7 +7,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
@@ -20,7 +19,6 @@ import { useJournals } from "@/lib/hooks/useJournals";
 import { cn, getMoodColor, getMoodIcon, getMoodText } from "@/lib/utils";
 import { format, isSameDay } from "date-fns";
 import {
-  Activity,
   BookIcon,
   Coffee,
   Dumbbell,

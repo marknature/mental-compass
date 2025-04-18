@@ -1,7 +1,14 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Calendar, BookOpen, User, Bookmark } from "lucide-react";
+import {
+  Home,
+  Calendar,
+  BookOpen,
+  User,
+  Bookmark,
+  MessageCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function BottomNavigation() {
@@ -10,7 +17,7 @@ export function BottomNavigation() {
 
   // Hide nav if the path has more than 2 segments (e.g. /events/123)
   const segments = pathname.split("/").filter(Boolean);
-  if (segments.length > 1) return null;
+  if (segments.length > 1 || pathname === "/chat") return null;
 
   const navItems = [
     {
@@ -32,16 +39,16 @@ export function BottomNavigation() {
       active: pathname.startsWith("/journals"),
     },
     {
+      name: "Chat",
+      href: "/chat",
+      icon: MessageCircle,
+      active: pathname.startsWith("/chat"),
+    },
+    {
       name: "Resources",
       href: "/resources",
       icon: Bookmark,
       active: pathname.startsWith("/resources"),
-    },
-    {
-      name: "Profile",
-      href: "/profile",
-      icon: User,
-      active: pathname.startsWith("/profile"),
     },
   ];
 

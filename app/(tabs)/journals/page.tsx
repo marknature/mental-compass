@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Journal from "./_components/create-journal-entry";
 import History from "./_components/history";
-import ComingSoon from "@/app/_components/coming-soon";
+import Insights from "./_components/inights";
 
 export default function JournalPage() {
   return (
@@ -37,8 +37,7 @@ export default function JournalPage() {
         </TabsContent>
 
         <TabsContent value="insights" className="p-4 space-y-6 px-0">
-          <ComingSoon title="Insights" />
-          {/* <Insights /> */}
+          <Insights />
         </TabsContent>
 
         <TabsContent value="history" className="p-4 space-y-6 px-0">

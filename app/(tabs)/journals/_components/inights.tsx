@@ -8,8 +8,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { cn, getCorrelationInsights } from "@/lib/utils";
-import { format, subDays } from "date-fns";
 import {
   Lightbulb,
   Dumbbell,
@@ -23,22 +21,34 @@ import {
   CloudIcon,
   Coffee,
   Music,
+  Loader2,
+  Calendar,
+  MapPin,
+  Clock,
+  Award,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
-type Props = {
-  insights: ReturnType<typeof getCorrelationInsights>;
-};
+type Props = {};
 
 interface MoodInsight {
-  id: string;
+  id?: string;
   type: "activity" | "sleep" | "weather" | "social";
   factor: string;
   impact: number; // -1 to 1, negative to positive
   confidence: number; // 0-1
   description: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface ActivityImpact {
+  factor: string;
+  impact: number;
+  confidence: number;
+  impactLabel: string;
+  percentageScore: number;
 }
 
 interface Recommendation {
@@ -50,6 +60,21 @@ interface Recommendation {
   completed: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+interface EventRecommendation {
+  eventId: string;
+  title: string;
+  reasoning: string;
+  relevanceScore: number;
+  eventDetails?: {
+    date?: string;
+    time?: string;
+    location?: string;
+    organizer?: string;
+    points?: number;
+    image?: string;
+  };
 }
 
 interface JournalEntry {
@@ -71,82 +96,110 @@ interface WeeklyStats {
 
 export default function Insights({}: Props) {
   const [insights, setInsights] = useState<MoodInsight[]>([]);
+  const [activityImpact, setActivityImpact] = useState<ActivityImpact[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [eventRecommendations, setEventRecommendations] = useState<
+    EventRecommendation[]
+  >([]);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [error, setError] = useState<string | null>(null);
+  const [moodTrend, setMoodTrend] = useState<
+    "improving" | "stable" | "declining"
+  >("stable");
   const [timeRange, setTimeRange] = useState("month");
 
   // Fetch data from API
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInsights = async () => {
       setLoading(true);
-      try {
-        // In a real app, these would be actual API calls
-        // const insightsResponse = await fetch('/api/insights')
-        // const journalResponse = await fetch('/api/journal?startDate=...')
-        // const statsResponse = await fetch('/api/stats')
+      setError(null);
 
-        // For demo purposes, use mock data
-        setInsights(mockInsights);
-        setRecommendations(mockRecommendations);
-        setJournalEntries(mockJournalEntries);
-        setWeeklyStats(mockWeeklyStats);
-      } catch (error) {
-        console.error("Error fetching insights data:", error);
+      try {
+        // Fetch journal entries first
+        const journalResponse = await fetch("/api/journals");
+        if (!journalResponse.ok) {
+          throw new Error("Failed to fetch journal entries");
+        }
+
+        const journalData = await journalResponse.json();
+        setJournalEntries(journalData);
+
+        // Only proceed with insights if we have journal data
+        if (journalData && journalData.length > 0) {
+          // Get AI insights based on mood data
+          const insightsResponse = await fetch("/api/insights/analyze", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              moodData: journalData,
+              timeRange,
+            }),
+          });
+
+          if (!insightsResponse.ok) {
+            throw new Error("Failed to generate insights");
+          }
+
+          const insightsData = await insightsResponse.json();
+          // Update state with the fetched data
+          if (insightsData.insights) setInsights(insightsData.insights);
+          if (insightsData.activityImpact)
+            setActivityImpact(insightsData.activityImpact);
+          if (insightsData.recommendations)
+            setRecommendations(insightsData.recommendations);
+          if (insightsData.eventRecommendations)
+            setEventRecommendations(insightsData.eventRecommendations);
+          if (insightsData.weeklyStats)
+            setWeeklyStats(insightsData.weeklyStats);
+          if (insightsData.moodTrend) setMoodTrend(insightsData.moodTrend);
+        }
+      } catch (err) {
+        console.error("Error fetching insights:", err);
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred",
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchInsights();
   }, [timeRange]);
 
   // Mark recommendation as completed
-  const completeRecommendation = (id: string) => {
-    setRecommendations(
-      recommendations.map((rec) =>
-        rec.id === id ? { ...rec, completed: true } : rec,
-      ),
-    );
-    // In a real app, this would call an API to update the database
+  const completeRecommendation = async (id: string) => {
+    try {
+      // Optimistically update UI
+      setRecommendations(
+        recommendations.map((rec) =>
+          rec.id === id ? { ...rec, completed: true } : rec,
+        ),
+      );
+
+      // Call API to update in database
+      const response = await fetch(`/api/recommendations/${id}/complete`, {
+        method: "PUT",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update recommendation");
+      }
+    } catch (err) {
+      console.error("Error completing recommendation:", err);
+      // Revert the optimistic update if the API call fails
+      setRecommendations(
+        recommendations.map((rec) =>
+          rec.id === id ? { ...rec, completed: false } : rec,
+        ),
+      );
+    }
   };
 
-  // Calculate mood trend (improving, stable, declining)
-  const calculateMoodTrend = (): "improving" | "stable" | "declining" => {
-    if (journalEntries.length < 5) return "stable";
-
-    const recentEntries = journalEntries.slice(0, 5);
-    const olderEntries = journalEntries.slice(5, 10);
-
-    if (recentEntries.length === 0 || olderEntries.length === 0)
-      return "stable";
-
-    const recentAvg =
-      recentEntries.reduce((sum, entry) => sum + entry.moodScore, 0) /
-      recentEntries.length;
-    const olderAvg =
-      olderEntries.reduce((sum, entry) => sum + entry.moodScore, 0) /
-      olderEntries.length;
-
-    const difference = recentAvg - olderAvg;
-
-    if (difference > 0.5) return "improving";
-    if (difference < -0.5) return "declining";
-    return "stable";
-  };
-
-  const moodTrend = calculateMoodTrend();
-
-  // Get color for mood trend
-  const getMoodTrendColor = () => {
-    if (moodTrend === "improving") return "text-green-600 dark:text-green-400";
-    if (moodTrend === "declining") return "text-red-600 dark:text-red-400";
-    return "text-yellow-600 dark:text-yellow-400";
-  };
-
-  // Get icon for mood trend
+  // Get mood trend icon
   const getMoodTrendIcon = () => {
     if (moodTrend === "improving") return <TrendingUp className="h-4 w-4" />;
     if (moodTrend === "declining")
@@ -154,80 +207,12 @@ export default function Insights({}: Props) {
     return <Activity className="h-4 w-4" />;
   };
 
-  // Format mood data for chart
-  const moodChartData = journalEntries
-    .map((entry) => ({
-      date: format(new Date(entry.date), "MMM d"),
-      mood: entry.moodScore,
-      sleep: entry.sleepHours || 0,
-      energy: entry.energyLevel || 0,
-    }))
-    .reverse();
-
-  // Get activity frequency data
-  const getActivityFrequencyData = () => {
-    const activityCount: Record<string, number> = {};
-
-    journalEntries.forEach((entry) => {
-      entry.activities.forEach((activity) => {
-        activityCount[activity] = (activityCount[activity] || 0) + 1;
-      });
-    });
-
-    return Object.entries(activityCount)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
+  // Get mood trend color
+  const getMoodTrendColor = () => {
+    if (moodTrend === "improving") return "text-green-600 dark:text-green-400";
+    if (moodTrend === "declining") return "text-red-600 dark:text-red-400";
+    return "text-yellow-600 dark:text-yellow-400";
   };
-
-  const activityFrequencyData = getActivityFrequencyData();
-
-  // Get mood by activity data
-  const getMoodByActivityData = () => {
-    const activityMoods: Record<string, number[]> = {};
-
-    journalEntries.forEach((entry) => {
-      entry.activities.forEach((activity) => {
-        if (!activityMoods[activity]) activityMoods[activity] = [];
-        activityMoods[activity].push(entry.moodScore);
-      });
-    });
-
-    return Object.entries(activityMoods)
-      .map(([name, moods]) => ({
-        name,
-        avgMood: moods.reduce((sum, mood) => sum + mood, 0) / moods.length,
-        count: moods.length,
-      }))
-      .filter((item) => item.count >= 3) // Only include activities with enough data
-      .sort((a, b) => b.avgMood - a.avgMood);
-  };
-
-  const moodByActivityData = getMoodByActivityData();
-
-  // Get sleep vs mood correlation
-  const getSleepMoodCorrelation = () => {
-    const sleepMoodData: Record<number, number[]> = {};
-
-    journalEntries.forEach((entry) => {
-      if (entry.sleepHours === null) return;
-
-      const roundedSleep = Math.round(entry.sleepHours);
-      if (!sleepMoodData[roundedSleep]) sleepMoodData[roundedSleep] = [];
-      sleepMoodData[roundedSleep].push(entry.moodScore);
-    });
-
-    return Object.entries(sleepMoodData)
-      .map(([hours, moods]) => ({
-        hours: Number.parseInt(hours),
-        avgMood: moods.reduce((sum, mood) => sum + mood, 0) / moods.length,
-        count: moods.length,
-      }))
-      .filter((item) => item.count >= 2) // Only include sleep hours with enough data
-      .sort((a, b) => a.hours - b.hours);
-  };
-
-  const sleepMoodCorrelation = getSleepMoodCorrelation();
 
   // Get activity icon
   const getActivityIcon = (activity: string) => {
@@ -241,7 +226,7 @@ export default function Insights({}: Props) {
       caffeine: <Coffee className="h-4 w-4" />,
     };
 
-    return iconMap[activity] || <Activity className="h-4 w-4" />;
+    return iconMap[activity.toLowerCase()] || <Activity className="h-4 w-4" />;
   };
 
   // Get recommendation icon
@@ -297,20 +282,35 @@ export default function Insights({}: Props) {
     return "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300";
   };
 
-  // Get mood color
-  const getMoodColor = (score: number) => {
-    if (score >= 8) return "#22c55e"; // green-500
-    if (score >= 6) return "#10b981"; // emerald-500
-    if (score >= 4) return "#eab308"; // yellow-500
-    if (score >= 2) return "#f97316"; // orange-500
-    return "#ef4444"; // red-500
-  };
-
-  if (!insights.length) {
+  // Display loading state
+  if (loading) {
     return (
       <div className="space-y-5 pt-20 flex flex-col items-center justify-center h-full text-sm text-muted-foreground">
-        <SearchSlash size={"35"} />
-        <p>Create some entries inorder to get insights</p>
+        <Loader2 size="35" className="animate-spin" />
+        <p>Analyzing your mood patterns...</p>
+      </div>
+    );
+  }
+
+  // Display error state
+  if (error) {
+    return (
+      <div className="space-y-5 pt-20 flex flex-col items-center justify-center h-full text-sm text-muted-foreground">
+        <SearchSlash size="35" />
+        <p>Error loading insights: {error}</p>
+        <Button onClick={() => window.location.reload()} variant="outline">
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
+  // Display empty state
+  if (!insights.length || !weeklyStats) {
+    return (
+      <div className="space-y-5 pt-20 flex flex-col items-center justify-center h-full text-sm text-muted-foreground">
+        <SearchSlash size="35" />
+        <p>Create some entries in order to get insights</p>
       </div>
     );
   }
@@ -318,7 +318,6 @@ export default function Insights({}: Props) {
   return (
     <>
       {/* Mood Factors */}
-
       <Card className="bg-border">
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Your Wellness Summary</CardTitle>
@@ -399,6 +398,54 @@ export default function Insights({}: Props) {
           </div>
         </CardContent>
       </Card>
+      <Card className="border-none shadow-none">
+        <CardHeader className="pb-2 px-0 pt-0">
+          <CardTitle className="text-base">What Affects Your Mood</CardTitle>
+          <CardDescription>An overview of your mental wellness</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0 px-0">
+          <div className="space-y-5">
+            {activityImpact.slice(0, 4).map((activity, index) => (
+              <div key={index}>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm capitalize">{activity.factor}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {activity.impactLabel}
+                  </span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${
+                      activity.impact > 0
+                        ? activity.impact > 0.5
+                          ? "bg-green-500"
+                          : activity.impact > 0.3
+                            ? "bg-indigo-500"
+                            : "bg-purple-500"
+                        : "bg-orange-500"
+                    }`}
+                    style={{ width: `${activity.percentageScore}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {insights.length > 0 && (
+            <div className="mt-4 bg-muted p-3 rounded-md">
+              <div className="flex items-start gap-2">
+                <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5" />
+                <div>
+                  <h4 className="text-xs font-medium">Insight</h4>
+                  <p className="text-xs text-muted-foreground">
+                    {insights[0].description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Recommendations */}
       <Card className="border-none">
@@ -411,379 +458,114 @@ export default function Insights({}: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0 space-y-3 px-0">
-          <div className="flex items-start p-3 bg-border rounded-md">
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full text-green-600 dark:text-green-300 mr-3">
-              <Dumbbell className="h-4 w-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium">Morning Exercise</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                Based on your patterns, morning exercise significantly improves
-                your mood for the rest of the day.
-              </p>
-              <Button
-                variant="link"
-                className="p-0 h-auto mt-1 text-xs text-indigo-600"
+          {recommendations.length > 0 ? (
+            recommendations.slice(0, 3).map((recommendation) => (
+              <div
+                key={recommendation.id}
+                className="flex items-start p-3 bg-border rounded-md"
               >
-                Try a 7-day challenge
-              </Button>
+                <div
+                  className={`p-2 ${getRecommendationColor(recommendation.type)} rounded-full mr-3`}
+                >
+                  {getRecommendationIcon(recommendation.type)}
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">
+                    {recommendation.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {recommendation.description}
+                  </p>
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto mt-1 text-xs text-indigo-600"
+                    onClick={() => completeRecommendation(recommendation.id)}
+                    disabled={recommendation.completed}
+                  >
+                    {recommendation.completed ? "Completed" : "Try this"}
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-muted-foreground text-sm py-4">
+              No personalized recommendations available yet.
             </div>
-          </div>
-
-          <div className="flex items-start p-3 bg-border rounded-md">
-            <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-full text-indigo-600 dark:text-indigo-300 mr-3">
-              <Moon className="h-4 w-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium">Sleep Consistency</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                Your data shows that consistent sleep times (even on weekends)
-                lead to better mood and energy levels.
-              </p>
-              <Button
-                variant="link"
-                className="p-0 h-auto mt-1 text-xs text-indigo-600"
-              >
-                View sleep tips
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex items-start p-3 bg-border rounded-md">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-full text-purple-600 dark:text-purple-300 mr-3">
-              <Users className="h-4 w-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium">Social Connection</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                Your mood improves after social activities. Consider scheduling
-                regular social time, even brief interactions.
-              </p>
-              <Button
-                variant="link"
-                className="p-0 h-auto mt-1 text-xs text-indigo-600"
-              >
-                View campus events
-              </Button>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
-      <Card className="border-none shadow-none">
-        <CardHeader className="pb-2 px-0 pt-0">
-          <CardTitle className="text-base">What Affects Your Mood</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0 px-0">
-          <div className="space-y-5">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm">Exercise</span>
-                <span className="text-sm text-muted-foreground">
-                  Strong positive
-                </span>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-500 rounded-full"
-                  style={{ width: "85%" }}
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm">Sleep Quality</span>
-                <span className="text-sm text-muted-foreground">Positive</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-indigo-500 rounded-full"
-                  style={{ width: "70%" }}
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm">Social Time</span>
-                <span className="text-sm text-muted-foreground">
-                  Moderate positive
-                </span>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-purple-500 rounded-full"
-                  style={{ width: "60%" }}
-                ></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm">Caffeine</span>
-                <span className="text-sm text-muted-foreground">
-                  Slight negative
-                </span>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-orange-500 rounded-full"
-                  style={{ width: "30%" }}
-                ></div>
-              </div>
-            </div>
-          </div>
+      {/* Recommended Events */}
+      {eventRecommendations.length > 0 && (
+        <Card className="border-none">
+          <CardHeader className="pb-2 px-0 pt-0">
+            <CardTitle className="text-base">
+              Recommended Events For You
+            </CardTitle>
+            <CardDescription>
+              Events that might improve your mood based on your patterns.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-3 px-0">
+            {eventRecommendations.slice(0, 2).map((event) => (
+              <div
+                key={event.eventId}
+                className="flex items-start p-3 bg-border rounded-md"
+              >
+                <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 rounded-full mr-3">
+                  <Calendar className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium">{event.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {event.reasoning}
+                  </p>
 
-          <div className="mt-4 bg-muted p-3 rounded-md">
-            <div className="flex items-start gap-2">
-              <Lightbulb className="h-4 w-4 text-amber-500 mt-0.5" />
-              <div>
-                <h4 className="text-xs font-medium">Insight</h4>
-                <p className="text-xs text-muted-foreground">
-                  Exercise has the strongest positive impact on your mood.
-                  Consider scheduling regular physical activity to maintain good
-                  mental health.
-                </p>
+                  {event.eventDetails && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {event.eventDetails.date && (
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {event.eventDetails.date}
+                        </div>
+                      )}
+                      {event.eventDetails.time && (
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {event.eventDetails.time}
+                        </div>
+                      )}
+                      {event.eventDetails.location && (
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {event.eventDetails.location}
+                        </div>
+                      )}
+                      {event.eventDetails.points && (
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Award className="h-3 w-3 mr-1" />
+                          {event.eventDetails.points} points
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mt-2">
+                    <Link href={`/events/${event.eventId}`}>
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto text-xs text-indigo-600"
+                      >
+                        View Event
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 }
-
-// Mock data for development
-const mockInsights: MoodInsight[] = [
-  {
-    id: "1",
-    type: "activity",
-    factor: "exercise",
-    impact: 0.8,
-    confidence: 0.9,
-    description: "Your mood is typically 80% better on days with exercise",
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-  {
-    id: "2",
-    type: "sleep",
-    factor: "sleep_duration",
-    impact: 0.6,
-    confidence: 0.85,
-    description: "You report higher mood scores when you sleep 7 or more hours",
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-  {
-    id: "3",
-    type: "activity",
-    factor: "social",
-    impact: 0.5,
-    confidence: 0.75,
-    description:
-      "Your mood is typically 50% better on days with social activities",
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-  {
-    id: "4",
-    type: "activity",
-    factor: "caffeine",
-    impact: -0.3,
-    confidence: 0.65,
-    description:
-      "Your mood is typically 30% lower on days with high caffeine consumption",
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-  {
-    id: "5",
-    type: "weather",
-    factor: "sunny",
-    impact: 0.4,
-    confidence: 0.7,
-    description: "Your mood tends to be better on sunny days",
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-];
-
-const mockRecommendations: Recommendation[] = [
-  {
-    id: "1",
-    title: "Morning Exercise Routine",
-    description:
-      "Based on your data, morning exercise significantly improves your mood for the rest of the day. Try a 15-minute workout before breakfast.",
-    type: "exercise",
-    priority: 5,
-    completed: false,
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-  {
-    id: "2",
-    title: "Consistent Sleep Schedule",
-    description:
-      "Your data shows that consistent sleep times lead to better mood and energy levels. Try to go to bed and wake up at the same time each day.",
-    type: "sleep",
-    priority: 4,
-    completed: false,
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-  {
-    id: "3",
-    title: "Social Connection Time",
-    description:
-      "Your mood improves after social activities. Schedule at least one social interaction each day, even if it's just a brief conversation.",
-    type: "social",
-    priority: 3,
-    completed: false,
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-01T00:00:00Z",
-  },
-  {
-    id: "4",
-    title: "Mindfulness Practice",
-    description:
-      "Try a 5-minute mindfulness meditation each day to improve focus and reduce stress.",
-    type: "mindfulness",
-    priority: 2,
-    completed: true,
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-10T00:00:00Z",
-  },
-  {
-    id: "5",
-    title: "Reduce Caffeine After Noon",
-    description:
-      "Your data suggests caffeine in the afternoon may affect your sleep quality. Try limiting caffeine to mornings only.",
-    type: "other",
-    priority: 3,
-    completed: true,
-    createdAt: "2023-06-01T00:00:00Z",
-    updatedAt: "2023-06-05T00:00:00Z",
-  },
-];
-
-const mockJournalEntries: JournalEntry[] = [
-  {
-    id: "1",
-    date: subDays(new Date(), 0).toISOString(),
-    moodScore: 8,
-    sleepHours: 7.5,
-    energyLevel: 7,
-    activities: ["exercise", "meditation", "social"],
-  },
-  {
-    id: "2",
-    date: subDays(new Date(), 1).toISOString(),
-    moodScore: 7,
-    sleepHours: 7,
-    energyLevel: 6,
-    activities: ["reading", "social"],
-  },
-  {
-    id: "3",
-    date: subDays(new Date(), 2).toISOString(),
-    moodScore: 6,
-    sleepHours: 6.5,
-    energyLevel: 5,
-    activities: ["caffeine", "work"],
-  },
-  {
-    id: "4",
-    date: subDays(new Date(), 3).toISOString(),
-    moodScore: 9,
-    sleepHours: 8,
-    energyLevel: 8,
-    activities: ["exercise", "meditation", "social"],
-  },
-  {
-    id: "5",
-    date: subDays(new Date(), 4).toISOString(),
-    moodScore: 5,
-    sleepHours: 5.5,
-    energyLevel: 4,
-    activities: ["caffeine", "work"],
-  },
-  {
-    id: "6",
-    date: subDays(new Date(), 5).toISOString(),
-    moodScore: 7,
-    sleepHours: 7,
-    energyLevel: 6,
-    activities: ["reading", "music"],
-  },
-  {
-    id: "7",
-    date: subDays(new Date(), 6).toISOString(),
-    moodScore: 8,
-    sleepHours: 7.5,
-    energyLevel: 7,
-    activities: ["exercise", "social"],
-  },
-  {
-    id: "8",
-    date: subDays(new Date(), 7).toISOString(),
-    moodScore: 6,
-    sleepHours: 6,
-    energyLevel: 5,
-    activities: ["caffeine", "work"],
-  },
-  {
-    id: "9",
-    date: subDays(new Date(), 8).toISOString(),
-    moodScore: 7,
-    sleepHours: 7,
-    energyLevel: 6,
-    activities: ["reading", "music"],
-  },
-  {
-    id: "10",
-    date: subDays(new Date(), 9).toISOString(),
-    moodScore: 8,
-    sleepHours: 8,
-    energyLevel: 7,
-    activities: ["exercise", "meditation"],
-  },
-  {
-    id: "11",
-    date: subDays(new Date(), 10).toISOString(),
-    moodScore: 9,
-    sleepHours: 8,
-    energyLevel: 8,
-    activities: ["exercise", "social", "meditation"],
-  },
-  {
-    id: "12",
-    date: subDays(new Date(), 11).toISOString(),
-    moodScore: 7,
-    sleepHours: 7,
-    energyLevel: 6,
-    activities: ["reading", "music"],
-  },
-  {
-    id: "13",
-    date: subDays(new Date(), 12).toISOString(),
-    moodScore: 6,
-    sleepHours: 6,
-    energyLevel: 5,
-    activities: ["caffeine", "work"],
-  },
-  {
-    id: "14",
-    date: subDays(new Date(), 13).toISOString(),
-    moodScore: 8,
-    sleepHours: 7.5,
-    energyLevel: 7,
-    activities: ["exercise", "social"],
-  },
-];
-
-const mockWeeklyStats: WeeklyStats = {
-  avgMood: 7.2,
-  avgSleep: 7.1,
-  avgEnergy: 6.3,
-  mostFrequentActivity: "exercise",
-  moodVariance: 1.8,
-};

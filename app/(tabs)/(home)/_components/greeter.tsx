@@ -4,6 +4,8 @@ import { getGreeting } from "@/lib/hooks/useGreeting";
 import { type User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
 
 type Props = {
   user: User | undefined;
@@ -20,7 +22,7 @@ export default function Greeter({ user }: Props) {
   }, [user]);
 
   return (
-    <header className="mb-6 px-0 ">
+    <header className="px-0 grid grid-cols-2 mb-0 ">
       <div className="overflow-hidden relative h-[48px]">
         <AnimatePresence mode="wait">
           {!showPersonalGreeting ? (
@@ -31,7 +33,7 @@ export default function Greeter({ user }: Props) {
               transition={{ duration: 0.4 }}
               className="absolute"
             >
-              <h1 className="text-xl font-semibold flex items-center gap-2">
+              <h1 className="text-xl font-semibold flex items-center gap-2 text-primary">
                 Welcome
               </h1>
               <p className="text-sm text-muted-foreground">
@@ -46,7 +48,7 @@ export default function Greeter({ user }: Props) {
               transition={{ duration: 0.4 }}
               className="absolute"
             >
-              <h1 className="text-foreground font-semibold text-lg">
+              <h1 className="text-primary font-semibold text-lg">
                 {getGreeting()}
               </h1>
               <h3 className="font-semibold text-sm text-muted-foreground">
@@ -56,6 +58,13 @@ export default function Greeter({ user }: Props) {
           )}
         </AnimatePresence>
       </div>
+      <div className="flex justify-end items-start">
+        <Link href={"/profile"}>
+          <Avatar>
+            <AvatarFallback>TM</AvatarFallback>
+          </Avatar>
+        </Link>
+      </div>{" "}
     </header>
   );
 }

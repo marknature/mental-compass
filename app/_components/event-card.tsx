@@ -42,7 +42,7 @@ export default function EventCard({ event }: Props) {
   };
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md bg-border">
+    <Card className="overflow-hidden transition-all hover:shadow-md">
       <Link href={`/events/${event.id}`} className="block">
         <CardContent className="p-0">
           <div className="flex-1 p-3 flex flex-col justify-between">

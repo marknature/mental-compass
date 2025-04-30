@@ -26,7 +26,7 @@ import { useState } from "react";
 import { type AuthError } from "@supabase/supabase-js";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { on } from "events";
+import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 
 // Validation schema using Zod
 const signupSchema = z
@@ -78,128 +78,173 @@ export function SignupForm({
     const { error } = await supabase.auth.signUp(signUpdata);
 
     if (error) {
-      router.push("/error");
+      setErrors(error);
+      return;
     }
 
     router.push(`/sign-in?${params}`);
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="border-none">
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create an Account</CardTitle>
-          <CardDescription>
-            Sign up with your Google account or create an account
+    <div
+      className={cn(
+        "flex min-h-screen flex-col items-center justify-center py-8",
+        className,
+      )}
+      {...props}
+    >
+      {/* Logo Area */}
+      <div className="mb-6 flex items-center justify-center">
+        <Avatar>
+          <AvatarImage
+            src="/images/logo.png"
+            alt="@shadcn"
+            className="h-24 w-24 rounded-lg"
+          />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+      </div>
+      <Card className="w-full max-w-sm border-none shadow-md">
+        <CardHeader className="space-y-1 text-center pb-4">
+          <CardTitle className="text-xl font-semibold">
+            Create Your Account
+          </CardTitle>
+          <CardDescription className="text-sm">
+            Begin your mindfulness journey with us
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-              <div className="grid gap-4">
-                <Button variant="outline" className="w-full" disabled>
-                  Sign up with Google
-                </Button>
-              </div>
-              <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                  Or sign up with
-                </span>
-              </div>
-              <div className="grid gap-3">
-                {errors && (
-                  <Alert variant="destructive">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {errors && (
+                <Alert variant="destructive" className="py-2">
+                  <div className="flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Could not login</AlertTitle>
-                    <AlertDescription>{errors.message}</AlertDescription>
-                  </Alert>
-                )}{" "}
+                    <div>
+                      <AlertTitle className="text-sm font-medium">
+                        Signup failed
+                      </AlertTitle>
+                      <AlertDescription className="text-xs">
+                        {errors.message}
+                      </AlertDescription>
+                    </div>
+                  </div>
+                </Alert>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
                   name="firstName"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
+                    <FormItem className="space-y-1.5">
+                      <FormLabel className="text-sm">First Name</FormLabel>
                       <FormControl>
-                        <Input type="text" {...field} />
+                        <Input type="text" className="h-10" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="lastName"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
+                    <FormItem className="space-y-1.5">
+                      <FormLabel className="text-sm">Last Name</FormLabel>
                       <FormControl>
-                        <Input type="text" {...field} />
+                        <Input type="text" className="h-10" {...field} />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? "Signing up..." : "Sign Up"}
-                </Button>
               </div>
-              <div className="text-center text-sm">
-                Already have an account?{" "}
-                <a href="/sign-in" className="underline underline-offset-4">
-                  Login
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel className="text-sm">Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" className="h-10" {...field} />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel className="text-sm">Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" className="h-10" {...field} />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel className="text-sm">Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" className="h-10" {...field} />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full mt-6 h-10"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    <span>Creating account...</span>
+                  </div>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+
+              <div className="text-center text-sm pt-2">
+                <span className="text-muted-foreground text-xs">
+                  Already have an account?
+                </span>{" "}
+                <a
+                  href="/sign-in"
+                  className="text-primary text-xs hover:underline underline-offset-4"
+                >
+                  Sign in
                 </a>
               </div>
             </form>
           </Form>
         </CardContent>
       </Card>
-      <div className="text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+
+      <div className="mt-6 text-center text-xs text-muted-foreground max-w-xs">
+        By continuing, you agree to our{" "}
+        <a href="#" className="text-primary ">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="#" className="text-primary">
+          Privacy Policy
+        </a>
+        .
       </div>
     </div>
   );

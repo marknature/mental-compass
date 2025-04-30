@@ -2,14 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Award, Gift } from "lucide-react";
 
-export default function Rewards() {
+type Props = {
+  points: number;
+};
+
+export default function Rewards({ points }: Props) {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium">Rewards</h2>
         <div className="flex items-center text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded">
           <Award className="h-3 w-3 mr-1" />
-          350 pts
+          {points} pts
         </div>
       </div>
 
@@ -44,10 +48,12 @@ export default function Rewards() {
                       <Button
                         size="sm"
                         className="mt-auto text-xs px-3 rounded-sm"
-                        variant={reward.points <= 350 ? "default" : "outline"}
-                        disabled={reward.points > 350}
+                        variant={
+                          reward.points <= points ? "default" : "outline"
+                        }
+                        disabled={reward.points > points}
                       >
-                        {reward.points <= 350 ? "Redeem" : "Not Enough"}
+                        {reward.points <= points ? "Redeem" : "Not Enough"}
                       </Button>
                     </div>
                   </div>

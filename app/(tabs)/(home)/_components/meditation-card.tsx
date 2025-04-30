@@ -1,7 +1,6 @@
-import { Play } from "lucide-react";
+import { Award, Clock, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -22,15 +21,16 @@ export function MeditationCard({
   author,
   category,
 }: MeditationProps) {
-  // Get gradient class based on category
-  const gradientClass = getGradientClass(category);
+  // Get background image URL based on category
+  const backgroundImage = getBackgroundImage(category);
 
   return (
-    <Card className="overflow-hidden border-none shadow-none bg-border">
+    <Card className="overflow-hidden">
       <div className="relative h-32">
-        {/* Animated gradient background */}
+        {/* Background image */}
         <div
-          className={cn("absolute inset-0 animate-gradient-x", gradientClass)}
+          className="absolute inset-0 bg-cover bg-center bg-primary"
+          style={{ backgroundImage: `url(${backgroundImage})` }}
         />
 
         {/* Overlay for better text readability */}
@@ -42,12 +42,6 @@ export function MeditationCard({
               {title}
             </h3>
           </div>
-          <Badge
-            variant="outline"
-            className="bg-black/50 text-white border-none text-xs"
-          >
-            {duration}
-          </Badge>
         </div>
       </div>
 
@@ -56,8 +50,17 @@ export function MeditationCard({
           {description}
         </p>
         <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground">By {author}</span>
-          <Button asChild size="sm" className="h-8 w-8 rounded-full p-0">
+          <div className="flex gap-2">
+            <div className="flex items-center text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+              <Clock className="h-3 w-3 mr-1" />
+              {duration}
+            </div>
+            <div className="flex items-center text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+              <Award className="h-3 w-3 mr-1" />
+              10 pts
+            </div>
+          </div>
+          <Button asChild size="sm" className="h-8 w-8 rounded-md p-0">
             <Link href={`/meditations/${id}`}>
               <Play className="h-4 w-4" />
               <span className="sr-only">Play meditation</span>
@@ -69,23 +72,23 @@ export function MeditationCard({
   );
 }
 
-// Helper function to get gradient class based on category
-function getGradientClass(category: string): string {
+// Helper function to get background image based on category
+function getBackgroundImage(category: string): string {
   const lowerCategory = category.toLowerCase();
 
   switch (lowerCategory) {
     case "morning":
-      return "bg-gradient-morning";
+      return "/images/backgrounds/morning.png";
     case "anxiety":
     case "stress":
-      return "bg-gradient-anxiety";
+      return "/images/backgrounds/student.png";
     case "sleep":
-      return "bg-gradient-sleep";
+      return "/images/backgrounds/sleep.png";
     case "focus":
-      return "bg-gradient-focus";
+      return "/images/backgrounds/meditate.png";
     case "gratitude":
-      return "bg-gradient-gratitude";
+      return "/images/backgrounds/pray.png";
     default:
-      return "bg-gradient-default";
+      return "/images/backgrounds/confidence.png";
   }
 }

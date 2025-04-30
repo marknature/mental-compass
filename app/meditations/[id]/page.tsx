@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { MeditationContent } from "@/lib/data/meditation-types";
 import { MeditationStoryPlayer } from "@/app/(tabs)/(home)/_components/meditation-story-player";
 import { guidedMeditations } from "@/lib/data/meditation-data";
+import Loading from "@/app/_components/loading";
 
 export default function MeditationPlayerPage() {
   const params = useParams();
@@ -25,14 +26,7 @@ export default function MeditationPlayerPage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-center">
-          <div className="h-12 w-12 rounded-full bg-indigo-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading meditation...</p>
-        </div>
-      </div>
-    );
+    return <Loading title="Loading meditation..." />;
   }
 
   if (!meditation) {

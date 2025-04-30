@@ -9,10 +9,7 @@ export default function Events() {
   return (
     <section className="py-6">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold">Events history</h2>
-        <p className="text-sm text-muted-foreground">
-          Events you are current and previous registered events
-        </p>
+        <h2 className="text-lg font-semibold">Your Events</h2>
       </div>
 
       {isLoading ? (

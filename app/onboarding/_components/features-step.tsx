@@ -44,7 +44,7 @@ export function FeaturesStep() {
     >
       <h2 className="text-xl font-bold mt-16 mb-5">Key Features</h2>
       <p className="text-muted-foreground mb-6">
-        Here's how Campus Compass will help you on your wellness journey
+        Here's how Mental Compass will help you on your wellness journey
       </p>
 
       <div className="flex-1 space-y-4 mb-6">

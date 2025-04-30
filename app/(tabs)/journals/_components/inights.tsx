@@ -318,12 +318,12 @@ export default function Insights({}: Props) {
   return (
     <>
       {/* Mood Factors */}
-      <Card className="bg-border">
-        <CardHeader className="pb-2">
+      <Card className="border-none bg-transparent p-0 shadow-none">
+        <CardHeader className="p-3">
           <CardTitle className="text-base">Your Wellness Summary</CardTitle>
           <CardDescription>An overview of your mental wellness</CardDescription>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="p-3">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground">
@@ -360,7 +360,7 @@ export default function Insights({}: Props) {
               </div>
               <Progress
                 value={Math.max(0, 100 - (weeklyStats?.moodVariance || 0) * 20)}
-                className="h-3"
+                className="h-2"
               />
             </div>
             <div>
@@ -376,7 +376,7 @@ export default function Insights({}: Props) {
               </div>
               <Progress
                 value={((weeklyStats?.avgSleep || 0) / 9) * 100}
-                className="h-3"
+                className="h-2"
               />
             </div>
             <div>
@@ -392,18 +392,18 @@ export default function Insights({}: Props) {
               </div>
               <Progress
                 value={((weeklyStats?.avgEnergy || 0) / 10) * 100}
-                className="h-3"
+                className="h-2"
               />
             </div>
           </div>
         </CardContent>
       </Card>
-      <Card className="border-none shadow-none">
-        <CardHeader className="pb-2 px-0 pt-0">
+      <Card className="border-none bg-transparent p-0 shadow-none">
+        <CardHeader className="p-3">
           <CardTitle className="text-base">What Affects Your Mood</CardTitle>
           <CardDescription>An overview of your mental wellness</CardDescription>
         </CardHeader>
-        <CardContent className="pt-0 px-0">
+        <CardContent className="pt-0 p-3">
           <div className="space-y-5">
             {activityImpact.slice(0, 4).map((activity, index) => (
               <div key={index}>
@@ -448,7 +448,7 @@ export default function Insights({}: Props) {
       </Card>
 
       {/* Recommendations */}
-      <Card className="border-none">
+      <Card className="border-none bg-transparent">
         <CardHeader className="pb-2 px-0 pt-0">
           <CardTitle className="text-base">
             Personalized Recommendations
@@ -462,7 +462,7 @@ export default function Insights({}: Props) {
             recommendations.slice(0, 3).map((recommendation) => (
               <div
                 key={recommendation.id}
-                className="flex items-start p-3 bg-border rounded-md"
+                className="flex items-start p-3 bg-card rounded-md"
               >
                 <div
                   className={`p-2 ${getRecommendationColor(recommendation.type)} rounded-full mr-3`}
@@ -497,7 +497,7 @@ export default function Insights({}: Props) {
 
       {/* Recommended Events */}
       {eventRecommendations.length > 0 && (
-        <Card className="border-none">
+        <Card className="bg-transparent border-none">
           <CardHeader className="pb-2 px-0 pt-0">
             <CardTitle className="text-base">
               Recommended Events For You
@@ -510,7 +510,7 @@ export default function Insights({}: Props) {
             {eventRecommendations.slice(0, 2).map((event) => (
               <div
                 key={event.eventId}
-                className="flex items-start p-3 bg-border rounded-md"
+                className="flex items-start p-3 bg-card  rounded-md"
               >
                 <div className="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 rounded-full mr-3">
                   <Calendar className="h-5 w-5" />

@@ -36,7 +36,7 @@ const pageMeta: { pattern: RegExp; title: string; description: string }[] = [
   },
   {
     pattern: /^\/chat$/,
-    title: "Compass Guide",
+    title: "Mental Guide",
     description: "Your mental wellness companion",
   },
 ];

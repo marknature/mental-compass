@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import React, { PropsWithChildren } from "react";
 
 type Props = {
-  title: string;
+  title?: string;
   description?: string;
   layout?: "list" | "row";
   className?: string;

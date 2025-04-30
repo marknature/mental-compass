@@ -12,9 +12,9 @@ type Props = {
 export default function FeaturedEvent({ event }: Props) {
   const { date, time } = formatDateTime(event.date);
   return (
-    <Card className="overflow-hidden border-none h-full">
+    <Card className="overflow-hidden border h-full">
       <CardContent className="p-0 h-full">
-        <div className="relative max-h-28 h-28 bg-primary/50">
+        <div className="relative max-h-28 h-28 ">
           <Image
             src={event.image}
             alt={event.title}
@@ -27,7 +27,7 @@ export default function FeaturedEvent({ event }: Props) {
           </div>
         </div>
 
-        <div className="h-full  p-3 bg-border">
+        <div className="h-full  p-3 ">
           <h3 className="font-semibold mb-1 line-clamp-2">{event.title}</h3>
           <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
             {event.description}

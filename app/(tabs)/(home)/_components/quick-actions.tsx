@@ -12,45 +12,17 @@ type ActionItem = {
   isExternal?: boolean;
 };
 
-export default function QuickActions() {
-  const actions: ActionItem[] = [
-    {
-      icon: Book,
-      title: "Journal Entry",
-      description: "Track your mood",
-      href: "/journals/",
-      color: "primary",
-    },
-    {
-      icon: Calendar,
-      title: "Events",
-      description: "Join activities",
-      href: "/events/",
-      color: "accent",
-    },
-    {
-      icon: Mail,
-      title: "Email Counselor",
-      description: "Get professional advice",
-      href: "mailto:counselling@africau.edu",
-      color: "secondary",
-      isExternal: true,
-    },
-    {
-      icon: Phone,
-      title: "Call Counselor",
-      description: "Call for immediate help",
-      href: "tel:+263719562825",
-      color: "primary",
-      isExternal: true,
-    },
-  ];
+type Props = {
+  title: string;
+  actions: ActionItem[];
+};
 
+export default function QuickActions({ title, actions }: Props) {
   return (
     <section className="quick-actions">
       <div className="mb-4">
         <h2 className="text-base mb-1 font-semibold flex items-center">
-          Quick Actions
+          {title}
         </h2>
       </div>
       <div className="grid grid-cols-2 gap-3">

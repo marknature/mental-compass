@@ -10,6 +10,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function BottomNavigation() {
   const pathname = usePathname();
@@ -53,21 +54,21 @@ export function BottomNavigation() {
   ];
 
   return (
-    <div className="border-t fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] z-40 bg-background">
+    <div className="border-t fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-40 bg-background">
       <div className="flex items-center h-16">
         {navItems.map((item) => (
-          <button
+          <Link
             key={item.name}
-            onClick={() => router.push(item.href)}
+            href={item.href}
             className={cn(
               "flex flex-col items-center justify-center w-full h-full",
-              item.active ? "text-primary" : "text-muted-foreground",
+              item.active ? "text-primary font-bold" : "text-muted-foreground",
             )}
             aria-label={item.name}
           >
             <item.icon className="h-5 w-5" />
             <span className="text-xs mt-1">{item.name}</span>
-          </button>
+          </Link>
         ))}
       </div>
     </div>

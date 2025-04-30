@@ -14,11 +14,12 @@ import Link from "next/link";
 import ArticleCard from "./_components/article-card";
 import ArticlesWrapper from "./_components/articles-wrapper";
 import PodcastCard from "./_components/podcast-list";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useArticlesQuery } from "@/lib/hooks/useArticles";
 import Loading from "@/app/_components/loading";
 import { usePodcastsQuery } from "@/lib/hooks/usePodcasts";
-import EmptyDataList from "@/app/_components/empty-data-list";
+import { Mail, Phone } from "lucide-react";
+import QuickActions from "../(home)/_components/quick-actions";
 
 type Podcast = {
   id: string;
@@ -30,6 +31,25 @@ type Podcast = {
 };
 
 export default function Resources() {
+  const actions = [
+    {
+      icon: Mail,
+      title: "Email Counselor",
+      description: "Get professional advice",
+      href: "mailto:counselling@africau.edu",
+      color: "secondary",
+      isExternal: true,
+    },
+    {
+      icon: Phone,
+      title: "Call Counselor",
+      description: "Call for immediate help",
+      href: "tel:+263719562825",
+      color: "secondary",
+      isExternal: true,
+    },
+  ];
+
   const { data = [], isLoading } = useArticlesQuery({});
   const { data: podcasts = [], isLoading: podcastsLoading } =
     usePodcastsQuery();
@@ -80,6 +100,8 @@ export default function Resources() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+
+      <QuickActions actions={actions} title="Crisis Support" />
       {!searchTerm && <FeaturedArticle article={data[0]} />}
 
       <ArticlesWrapper
@@ -110,7 +132,7 @@ export default function Resources() {
         )}
       </ArticlesWrapper>
 
-      <Card className="bg-transparent space-y-4 max-w-4xl mx-auto border-none shadow-none">
+      <Card className="bg-transparent space-y-4 max-w-4xl mx-auto border-none shadow-none w-full">
         <CardHeader className="p-0">
           <CardTitle>Podcasts</CardTitle>
           <CardDescription>
@@ -124,7 +146,7 @@ export default function Resources() {
                 <PodcastCard podcast={podcast} key={podcast.id} />
               ))
             ) : (
-              <div className="flex justify-center items-center h-32 bg-muted/20 rounded-md">
+              <div className="flex justify-center items-center h-32 bg-muted/20 rounded-md w-full">
                 <p className="text-muted-foreground text-sm">
                   No podcasts found
                 </p>

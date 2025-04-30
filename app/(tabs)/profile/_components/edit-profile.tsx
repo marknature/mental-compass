@@ -94,33 +94,6 @@ export default function EditProfile({ user, onUpdate }: EditProfileProps) {
               />
             </div>
           </div>
-
-          <div>
-            <Label className="block mb-3">Choose Profile Picture</Label>
-            <div className="grid grid-cols-3 gap-3">
-              {avatarOptions.map((avatar) => {
-                const AvatarComponent = avatar.component;
-                return (
-                  <Card
-                    key={avatar.id}
-                    className={`cursor-pointer transition-all ${
-                      formData.avatar_id === avatar.id
-                        ? "ring-2 ring-primary"
-                        : "hover:bg-muted/50"
-                    }`}
-                    onClick={() => selectAvatar(avatar.id)}
-                  >
-                    <CardContent className="p-3 flex flex-col items-center">
-                      <div className="h-16 w-16 mb-2 rounded-full overflow-hidden">
-                        <AvatarComponent />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Updating..." : "Save Changes"}
           </Button>

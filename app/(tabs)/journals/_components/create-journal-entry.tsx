@@ -38,6 +38,8 @@ import {
   Users,
   Utensils,
   Zap,
+  Loader2,
+  SaveIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -165,7 +167,7 @@ export default function Journal() {
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card className="bg-border border-none">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">
                 How are you feeling today?
@@ -218,7 +220,7 @@ export default function Journal() {
             </CardContent>
           </Card>
 
-          <Card className="border-none bg-border">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">
                 What did you do today?
@@ -272,7 +274,7 @@ export default function Journal() {
             )}
           />
 
-          <Card className="bg-border border-none">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Track Your Wellness</CardTitle>
             </CardHeader>
@@ -339,7 +341,7 @@ export default function Journal() {
             </CardContent>
           </Card>
 
-          <Card className="border-none">
+          <Card className="border-none bg-transparent">
             <CardHeader className="pb-2 px-0 pt-0">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-base">Journal Entry</CardTitle>
@@ -431,11 +433,16 @@ export default function Journal() {
             <CardFooter className="px-0">
               <Button
                 type="submit"
-                className="w-full relative overflow-hidden"
+                className="fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full p-0 bg-primary hover:bg-primary/90"
                 disabled={mutation.isPending}
               >
-                <Save className="mr-2 h-4 w-4" />
-                {mutation.isPending ? "Saving..." : "Save Entry"}
+                {mutation.isPending ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <>
+                    <SaveIcon className="h-6 w-6 text-white" />
+                  </>
+                )}
               </Button>
             </CardFooter>
           </Card>

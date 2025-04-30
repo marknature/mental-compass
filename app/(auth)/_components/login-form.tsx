@@ -27,6 +27,8 @@ import { AlertCircle, Check, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type AuthError } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import { AvatarFallback } from "@/components/ui/avatar";
 
 // Validation schema using zod
 const loginSchema = z.object({
@@ -56,38 +58,28 @@ export function LoginForm({
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword(data);
-    console.log(error, form.formState.errors);
 
-    setErrors(error);
+    const { error } = await supabase.auth.signInWithPassword(data);
+    console.log("Login error:", error);
 
     if (error) {
-      router.push("/error");
+      setErrors(error);
+      return router.push("/error");
     }
 
     const onboardingStatus = localStorage.getItem("onboardingComplete");
-    setIsOnboardingComplete(onboardingStatus === "true");
+    const isComplete = onboardingStatus === "true";
+    setIsOnboardingComplete(isComplete);
 
-    // If onboarding is not complete and we're not already on the onboarding page,
-    // redirect to onboarding
-    if (
-      onboardingStatus !== "true" &&
-      pathname !== "/onboarding" &&
-      onboardingStatus !== null
-    ) {
-      console.log("navigating to onboarding");
+    if (!isComplete && pathname !== "/onboarding") {
+      console.log("Navigating to onboarding");
       return router.push("/onboarding");
     }
 
-    // Don't render anything until we've checked onboarding status
-    if (!onboardingStatus && pathname !== "/onboarding") {
-      return null;
-    }
     return router.push("/");
   };
 
   useEffect(() => {
-    router.prefetch("/");
     if (params.get("confirmEmail")) {
       const notification = toast.success("Sign up successful", {
         description: "Please check your emails to verify your account",
@@ -100,88 +92,128 @@ export function LoginForm({
   }, []);
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="border-none">
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Login with your Google account</CardDescription>
+    <div
+      className={cn(
+        "flex min-h-screen flex-col items-center justify-center",
+        className,
+      )}
+      {...props}
+    >
+      {/* Logo Area */}
+      <div className="mb-6 flex items-center justify-center">
+        <Avatar>
+          <AvatarImage
+            src="/images/logo.png"
+            alt="@shadcn"
+            className="h-24 w-24 rounded-lg"
+          />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+      </div>
+
+      <Card className="w-full max-w-sm border-none shadow-md">
+        <CardHeader className="space-y-1 text-center pb-4">
+          <CardTitle className="text-xl font-semibold">Welcome Back</CardTitle>
+          <CardDescription className="text-sm">
+            Take a moment for yourself. You're exactly where you need to be.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-              <div className="grid gap-4">
-                <Button variant="outline" className="w-full" disabled>
-                  Login with Google
-                </Button>
-              </div>
-              <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-              <div className="grid gap-6">
-                {errors && (
-                  <Alert variant="destructive">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {errors && (
+                <Alert variant="destructive" className="py-2">
+                  <div className="flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Could not login</AlertTitle>
-                    <AlertDescription>{errors.message}</AlertDescription>
-                  </Alert>
-                )}{" "}
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Password</FormLabel>
-                        <a
-                          href="#"
-                          className="text-sm underline-offset-4 hover:underline"
-                        >
-                          Forgot your password?
-                        </a>
-                      </div>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={form.formState.isSubmitting}
+                    <div>
+                      <AlertTitle className="text-sm font-medium">
+                        Login failed
+                      </AlertTitle>
+                      <AlertDescription className="text-xs">
+                        {errors.message}
+                      </AlertDescription>
+                    </div>
+                  </div>
+                </Alert>
+              )}
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <FormLabel className="text-sm">Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" className="h-10" {...field} />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-sm">Password</FormLabel>
+                      <a
+                        href="#"
+                        className="text-xs text-primary hover:underline underline-offset-4"
+                      >
+                        Forgot password?
+                      </a>
+                    </div>
+                    <FormControl>
+                      <Input type="password" className="h-10" {...field} />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full mt-6 h-10"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                    <span>Logging in...</span>
+                  </div>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+
+              <div className="text-center text-sm pt-2">
+                <span className="text-muted-foreground text-xs">
+                  Don't have an account?
+                </span>{" "}
+                <a
+                  href="/sign-up"
+                  className="text-primary text-xs hover:underline underline-offset-4"
                 >
-                  {form.formState.isSubmitting ? "Logging in..." : "Login"}
-                </Button>
-              </div>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a href="/sign-up" className="underline underline-offset-4">
-                  Sign up
+                  Create account
                 </a>
               </div>
             </form>
           </Form>
         </CardContent>
       </Card>
-      <div className="text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+
+      <div className="mt-6 text-center text-xs text-muted-foreground max-w-xs">
+        By continuing, you agree to our{" "}
+        <a href="#" className="text-primary  ">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="#" className="text-primary ">
+          Privacy Policy
+        </a>
+        .
       </div>
     </div>
   );

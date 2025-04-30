@@ -1,9 +1,6 @@
-import { ChatInterface } from "./_components/chat-interface";
+"use client";
 
-export const metadata = {
-  title: "Chat with Compass Guide | Campus Compass",
-  description: "Get mental wellness support and advice from Compass Guide",
-};
+import { ChatInterface } from "./_components/chat-interface";
 
 export default function ChatPage() {
   return <ChatInterface />;

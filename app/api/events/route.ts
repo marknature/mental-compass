@@ -5,6 +5,7 @@ import { db } from "@/services/database";
 import events from "@/services/database/schema/events/events.schema";
 import userEvents from "@/services/database/schema/events/users-events.shema";
 import { takeFirstOrNull } from "@/services/database/utils/utils";
+import { awardPoints, deductPoints } from "@/services/queries/points";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { createLoader } from "nuqs/server";
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
         )
         .returning();
 
+      await deductPoints(userId, 5);
       return Response.json(
         { message: "You unregistered for this event", userEvent: data[0] },
         { status: 200 },
@@ -127,6 +129,7 @@ export async function POST(request: NextRequest) {
         earnedPoints: 0,
       })
       .returning();
+    await awardPoints(userId, 5);
 
     return Response.json(
       {

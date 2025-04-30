@@ -49,7 +49,7 @@ export default function History({}: Props) {
     : null;
   return (
     <>
-      <Card className="border-none shadow-none ">
+      <Card className="border-none bg-transparent shadow-none ">
         <CardHeader className="pb-2 px-0 mb-2 pt-0">
           <CardTitle className="text-base">Your Journal Calendar</CardTitle>
           <CardDescription>
@@ -61,7 +61,7 @@ export default function History({}: Props) {
             mode="single"
             selected={selectedDate}
             onSelect={setDate}
-            className="bg-border rounded-md border p-4 w-full"
+            className="bg-card rounded-md border p-4 w-full shadow-none"
             components={{
               DayContent: ({ date, displayMonth, ...props }) => {
                 const entry = moodHistory.find(
@@ -80,7 +80,7 @@ export default function History({}: Props) {
               },
             }}
           />
-          <div className="mt-4 flex gap-4 space-y-1">
+          <div className="mt-4 flex gap-4 space-y-1 items-center">
             <div className="flex items-center">
               <div className="h-3 w-3 rounded-full bg-green-500 mr-1"></div>
               <span className="text-xs">Great</span>
@@ -98,7 +98,7 @@ export default function History({}: Props) {
       </Card>
       {/* Selected Day Details */}
       {todaysMood && (
-        <Card className="border-none">
+        <Card className="border-none bg-transparent">
           <CardHeader className="pb-2 px-0 mb-2 pt-0">
             <CardTitle className="text-base">Journal</CardTitle>
             <CardDescription>
@@ -108,7 +108,7 @@ export default function History({}: Props) {
               </span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="bg-border  rounded-lg p-6 space-y-3">
+          <CardContent className="bg-card  rounded-lg p-6 space-y-3">
             {/* Date */}
             <div className="text-sm text-muted-foreground">
               {format(todaysMood.created_at, "EEEE, MMMM d, yyyy")}
@@ -196,7 +196,7 @@ export default function History({}: Props) {
         </Card>
       )}
       {/* Past Entries */}
-      <Card className="border-none">
+      <Card className="border-none bg-transparent">
         <CardHeader className="pb-2 px-0 pt-0 m-0">
           <CardTitle className="text-base">Recent Entries</CardTitle>
           <CardDescription>
@@ -208,7 +208,7 @@ export default function History({}: Props) {
           <Accordion type="single" collapsible className="w-full space-y-3">
             {moodHistory.slice(0, 5).map((day, i) => (
               <AccordionItem value={`day-${i}`} key={i} className="border-none">
-                <AccordionTrigger className="p-3 rounded-md bg-border no-underline hover:bg-muted/30 [&[data-state=open]]:rounded-b-none">
+                <AccordionTrigger className="p-3 rounded-md bg-card no-underline hover:bg-muted/30 [&[data-state=open]]:rounded-b-none">
                   <div className="flex items-start w-full gap-3 text-left">
                     <div
                       className={cn(

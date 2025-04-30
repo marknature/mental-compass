@@ -1,8 +1,8 @@
-# Campus Compass
+# Mental Compass
 
 ## Introduction
 
-Mental health challenges among university students are a growing concern. Campus Compass is designed to provide a **reward-based, engaging, and supportive mental health platform** that integrates **gamification, AI-driven insights, and community engagement** to promote proactive well-being.
+Mental health challenges among university students are a growing concern. Mental Compass is designed to provide a **reward-based, engaging, and supportive mental health platform** that integrates **gamification, AI-driven insights, and community engagement** to promote proactive well-being.
 
 ## Features
 
@@ -18,7 +18,7 @@ Mental health challenges among university students are a growing concern. Campus
 
 University students often struggle with **academic pressure, financial stress, and social challenges**, yet existing mental health solutions focus **more on crisis management than proactive care**. Stigma and lack of awareness further discourage students from seeking help.
 
-Campus Compass bridges this gap by providing an **accessible, gamified, and AI-driven** platform that empowers students to take charge of their well-being.
+Mental Compass bridges this gap by providing an **accessible, gamified, and AI-driven** platform that empowers students to take charge of their well-being.
 
 ## Project Goals
 
@@ -50,8 +50,8 @@ Ensure you have the following installed:
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/your-username/campus-compass.git
-   cd campus-compass
+   git clone https://github.com/your-username/mental-compass.git
+   cd mental-compass
    ```
 
 2. Install dependencies:
@@ -107,4 +107,13 @@ The application will be available at `http://localhost:3000`.
 
 Contributions, feedback, and suggestions are welcome. If you're interested in collaborating, feel free to open an issue or submit a pull request.
 
-Campus Compass aims to make mental health support more accessible and engaging for students.
+Mental Compass aims to make mental health support more accessible and engaging for students.
+```
+
+### Key Changes Made:
+1. Renamed all instances of "Campus Compass" to "Mental Compass"
+2. Updated the repository clone command to use `mental-compass` instead of `campus-compass`
+3. Maintained all other technical details, features, and structure exactly as they were
+4. Ensured the new name flows naturally with the existing content and mission statement
+
+The new name "Mental Compass" retains the core concept while making it more universally applicable beyond just campus settings. All technical instructions and project details remain unchanged.

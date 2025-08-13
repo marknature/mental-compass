@@ -1,4 +1,4 @@
-# Mental Compass
+# Mental Compass 🧠
 
 ## Introduction
 
